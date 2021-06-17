@@ -8,9 +8,9 @@ interface OAuth2Config {
     var clientSecret: String
     var cookieName: String
     var postAuthRedirect: String
-    var cookieMaxAgeSecs: String
+    var cookieMaxAgeSecs: Long
     var cookiePath: String
     var authLoginBaseUri: String
     var insecurePaths: String
-    var authCodeWaitMins: String
+    var authCodeWaitMins: Long
 }
