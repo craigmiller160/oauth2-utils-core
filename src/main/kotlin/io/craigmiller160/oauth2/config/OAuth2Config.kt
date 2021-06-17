@@ -1,5 +1,6 @@
 package io.craigmiller160.oauth2.config
 
+// TODO move documentation about all properties to this. all property keys should be consistent
 interface OAuth2Config {
     var authServerHost: String
     var authCodeRedirectUri: String
