@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.JWKSet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URL
+import javax.annotation.PostConstruct
 
 
 abstract class OAuth2Config {
@@ -49,7 +50,9 @@ abstract class OAuth2Config {
                 .filter { it.isNotBlank() }
     }
 
+    @PostConstruct
     fun tryToLoadJWKSet() {
+        println("LOADING JWK SET PRINTLN") // TODO delete this
         log.info("Loading JWKSet")
         for (i in 0 until 5) {
             try {
