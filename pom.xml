@@ -9,14 +9,21 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
+        <slf4j.version>1.7.31</slf4j.version>
         <kotlin.version>1.5.10</kotlin.version>
+        <nimbus.jose.version>9.2</nimbus.jose.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>${nimbus.jose.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
