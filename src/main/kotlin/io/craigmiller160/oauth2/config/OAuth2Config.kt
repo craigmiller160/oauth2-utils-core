@@ -1,70 +1,35 @@
 package io.craigmiller160.oauth2.config
 
 import com.nimbusds.jose.jwk.JWKSet
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import java.net.URL
-import javax.annotation.PostConstruct
 
 
-abstract class OAuth2Config {
-    abstract var authServerHost: String
-    abstract var authCodeRedirectUri: String
-    abstract var clientName: String
-    abstract var clientKey: String
-    abstract var clientSecret: String
-    abstract var cookieName: String
-    abstract var postAuthRedirect: String
-    abstract var cookieMaxAgeSecs: Long
-    abstract var cookiePath: String
-    abstract var authLoginBaseUri: String
-    abstract var insecurePaths: String
-    abstract var authCodeWaitMins: Long
+interface OAuth2Config {
 
-    val jwkPath = "/jwk"
-    val tokenPath = "/oauth/token"
-    val authCodeLoginPath = "/ui/login"
-
-    private val log: Logger = LoggerFactory.getLogger(javaClass)
-
-    lateinit var jwkSet: JWKSet
-
-    fun getOrDefaultCookiePath(): String {
-        if (cookiePath.isNotBlank()) {
-            return cookiePath
-        }
-        return "/"
+    companion object {
+        const val JWK_PATH = "/jwk"
+        const val TOKEN_PATH = "/oauth/token"
+        const val AUTH_CODE_LOGIN_PATH = "/ui/login"
     }
 
-    fun getBaseWait(): Long {
-        return 1000
-    }
+    var authServerHost: String
+    var authCodeRedirectUri: String
+    var clientName: String
+    var clientKey: String
+    var clientSecret: String
+    var cookieName: String
+    var postAuthRedirect: String
+    var cookieMaxAgeSecs: Long
+    var cookiePath: String
+    var authLoginBaseUri: String
+    var insecurePaths: String
+    var authCodeWaitMins: Long
 
-    fun loadJWKSet(): JWKSet {
-        return JWKSet.load(URL("$authServerHost$jwkPath"))
-    }
+    var jwkSet: JWKSet
 
-    fun getInsecurePathList(): List<String> {
-        return insecurePaths.split(",")
-                .map { it.trim() }
-                .filter { it.isNotBlank() }
-    }
+    fun getOrDefaultCookiePath(): String
+    fun getBaseWait(): Long
+    fun loadJWKSet(): JWKSet
+    fun getInsecurePathList(): List<String>
+    fun tryToLoadJWKSet()
 
-    @PostConstruct
-    fun tryToLoadJWKSet() {
-        println("LOADING JWK SET PRINTLN") // TODO delete this
-        log.info("Loading JWKSet")
-        for (i in 0 until 5) {
-            try {
-                jwkSet = loadJWKSet()
-                log.debug("Successfully loaded JWKSet")
-                return
-            } catch (ex: Exception) {
-                log.error("Error loading JWKSet", ex)
-                Thread.sleep(getBaseWait() * (i + 1))
-            }
-        }
-
-        throw RuntimeException("Failed to load JWKSet")
-    }
 }
