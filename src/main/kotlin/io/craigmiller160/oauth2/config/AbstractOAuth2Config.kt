@@ -35,16 +35,13 @@ abstract class AbstractOAuth2Config : OAuth2Config {
 
     @PostConstruct
     override fun tryToLoadJWKSet() {
-        println("LOADING JWK SET PRINTLN") // TODO delete this
         log.info("Loading JWKSet")
         for (i in 0 until 5) {
             try {
                 jwkSet = loadJWKSet()
-                println("JWK SUCCESS") // TODO delete this
                 log.debug("Successfully loaded JWKSet")
                 return
             } catch (ex: Exception) {
-                ex.printStackTrace() // TODO delete this
                 log.error("Error loading JWKSet", ex)
                 Thread.sleep(getBaseWait() * (i + 1))
             }
