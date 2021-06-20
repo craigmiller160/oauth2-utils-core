@@ -40,9 +40,11 @@ abstract class AbstractOAuth2Config : OAuth2Config {
         for (i in 0 until 5) {
             try {
                 jwkSet = loadJWKSet()
+                println("JWK SUCCESS") // TODO delete this
                 log.debug("Successfully loaded JWKSet")
                 return
             } catch (ex: Exception) {
+                ex.printStackTrace() // TODO delete this
                 log.error("Error loading JWKSet", ex)
                 Thread.sleep(getBaseWait() * (i + 1))
             }
