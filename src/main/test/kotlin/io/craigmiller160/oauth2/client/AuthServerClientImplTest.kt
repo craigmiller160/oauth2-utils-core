@@ -2,15 +2,14 @@ package io.craigmiller160.oauth2.client
 
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.dto.TokenResponseDto
-import io.craigmiller160.oauth2.exception.InvalidResponseBodyException
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import org.junit.jupiter.api.Assertions
+import io.mockk.slot
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import java.lang.RuntimeException
+import kotlin.test.assertNotNull
 
 class AuthServerClientImplTest {
 
@@ -26,6 +25,7 @@ class AuthServerClientImplTest {
     private lateinit var oAuthConfig: OAuth2Config
 
     private lateinit var authServerClient: AuthServerClientImpl
+    private var request: AuthServerClientRequest? = null
 
     @BeforeEach
     fun setup() {
@@ -35,11 +35,11 @@ class AuthServerClientImplTest {
         every { oAuthConfig.clientSecret } returns secret
 
         authServerClient = AuthServerClientImpl(oAuthConfig, this::handleRequest)
+        request = null
     }
 
     private fun handleRequest(request: AuthServerClientRequest): TokenResponseDto {
-        // TODO record the request
-        throw RuntimeException()
+        this.request = request
         return response
     }
 
@@ -58,8 +58,12 @@ class AuthServerClientImplTest {
 //        ))
 //                .thenReturn(ResponseEntity.ok(response))
 //
-//        val result = authServerClient.authenticateAuthCode(host, authCode)
-//        Assertions.assertEquals(response, result)
+        val result = authServerClient.authenticateAuthCode(host, authCode)
+        assertEquals(response, result)
+
+        assertNotNull(request)
+        assertEquals(key, request?.clientKey)
+        assertEquals(secret, request?.clientSecret)
 //
 //        Assertions.assertEquals(1, entityCaptor.allValues.size)
 //        val entity = entityCaptor.value
