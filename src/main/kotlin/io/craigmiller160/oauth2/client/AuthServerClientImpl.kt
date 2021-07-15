@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.dto.TokenResponseDto
 import io.craigmiller160.oauth2.exception.BadAuthenticationException
-import io.craigmiller160.oauth2.exception.InvalidResponseBodyException
-import jdk.internal.net.http.ResponseBodyHandlers
 import java.net.URI
 import java.net.URLEncoder
 import java.net.http.HttpClient

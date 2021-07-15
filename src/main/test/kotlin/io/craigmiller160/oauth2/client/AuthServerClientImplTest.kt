@@ -1,70 +1,82 @@
 package io.craigmiller160.oauth2.client
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.dto.TokenResponseDto
-import io.mockk.MockKAnnotations
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.slot
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentCaptor
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.any
+import org.mockito.junit.jupiter.MockitoExtension
 import java.net.http.HttpClient
-import kotlin.test.assertNotNull
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.util.concurrent.CompletableFuture
 
+@ExtendWith(MockitoExtension::class)
 class AuthServerClientImplTest {
 
-    private val host = "host"
+    private val accessToken = "accessToken"
+    private val refreshToken = "refreshToken"
+    private val tokenId = "tokenId"
+    private val host = "http://localhost"
     private val path = "path"
     private val key = "key"
     private val secret = "secret"
     private val redirectUri = "redirectUri"
     private val authHeader = "Basic a2V5OnNlY3JldA=="
-    private val response = TokenResponseDto("access", "refresh", "id")
 
-    @MockK
+    @Mock
     private lateinit var oAuthConfig: OAuth2Config
+    @Mock
+    private lateinit var client: HttpClient
+    @Mock
+    private lateinit var response: HttpResponse<String>
 
+    private lateinit var tokenResponse: TokenResponseDto
     private lateinit var authServerClient: AuthServerClientImpl
     private var request: AuthServerClientRequest? = null
+    private val mapper = ObjectMapper()
 
     @BeforeEach
     fun setup() {
-        MockKAnnotations.init(this)
-        every { oAuthConfig.authServerHost } returns host
-        every { oAuthConfig.clientKey } returns key
-        every { oAuthConfig.clientSecret } returns secret
+        `when`(oAuthConfig.authServerHost)
+                .thenReturn(host)
+        `when`(oAuthConfig.clientKey)
+                .thenReturn(key)
+        `when`(oAuthConfig.clientSecret)
+                .thenReturn(secret)
 
-        authServerClient = AuthServerClientImpl(oAuthConfig, this::handleRequest)
-        request = null
-    }
-
-    private fun handleRequest(request: AuthServerClientRequest): TokenResponseDto {
-        this.request = request
-        return response
+        authServerClient = AuthServerClientImpl(oAuthConfig, client)
+        tokenResponse = TokenResponseDto(
+                accessToken = accessToken,
+                refreshToken = refreshToken,
+                tokenId = tokenId
+        )
+        `when`(response.body())
+                .thenReturn(mapper.writeValueAsString(tokenResponse))
     }
 
     @Test
     fun test_authenticateAuthCode() {
-        every { oAuthConfig.authCodeRedirectUri } returns redirectUri
+        `when`(oAuthConfig.authCodeRedirectUri)
+                .thenReturn(redirectUri)
 
         val authCode = "DERFG"
-//        val entityCaptor = ArgumentCaptor.forClass(HttpEntity::class.java)
-//
-//        `when`(restTemplate.exchange(
-//                eq("$host${OAuth2Config.TOKEN_PATH}"),
-//                eq(HttpMethod.POST),
-//                entityCaptor.capture(),
-//                eq(TokenResponseDto::class.java)
-//        ))
-//                .thenReturn(ResponseEntity.ok(response))
-//
-        val result = authServerClient.authenticateAuthCode(host, authCode)
-        assertEquals(response, result)
+        val requestCaptor = ArgumentCaptor.forClass(HttpRequest::class.java)
+        `when`(client.sendAsync(requestCaptor.capture(), any<HttpResponse.BodyHandler<String>>()))
+                .thenReturn(CompletableFuture.completedFuture(response))
 
-        assertNotNull(request)
-        assertEquals(key, request?.clientKey)
-        assertEquals(secret, request?.clientSecret)
+        val result = authServerClient.authenticateAuthCode(host, authCode)
+        assertEquals(tokenResponse, result)
+
+//        assertNotNull(request)
+//        assertEquals(key, request?.clientKey)
+//        assertEquals(secret, request?.clientSecret)
 //
 //        Assertions.assertEquals(1, entityCaptor.allValues.size)
 //        val entity = entityCaptor.value
@@ -79,7 +91,6 @@ class AuthServerClientImplTest {
 //        Assertions.assertEquals("$host$redirectUri", map["redirect_uri"]?.get(0))
 //        Assertions.assertEquals(key, map["client_id"]?.get(0))
 //        Assertions.assertEquals(authCode, map["code"]?.get(0))
-        TODO("Finish this")
     }
 
     @Test
