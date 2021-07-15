@@ -70,15 +70,12 @@ class AuthServerClientImpl(
                     .POST(HttpRequest.BodyPublishers.ofString(bodyString))
                     .build()
 
-            return executeRequest(request)
+            return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply { it.body() }
+                    .thenApply { objectMapper.readValue(it, TokenResponseDto::class.java) }
+                    .get()
         } catch (ex: Exception) {
             throw BadAuthenticationException("Error while requesting authentication token", ex)
         }
-    }
-
-    internal fun executeRequest(request: HttpRequest): TokenResponseDto {
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-        val bodyString = response.body()
-        return objectMapper.readValue(bodyString, TokenResponseDto::class.java)
     }
 }
