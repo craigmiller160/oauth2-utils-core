@@ -1,6 +1,7 @@
 package io.craigmiller160.oauth2.client
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.dto.TokenResponseDto
 import io.craigmiller160.oauth2.exception.BadAuthenticationException
@@ -25,7 +26,7 @@ class AuthServerClientImpl(
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build()
 
-    private val objectMapper = ObjectMapper()
+    private val objectMapper = ObjectMapper().registerKotlinModule()
 
     override fun authenticateAuthCode(origin: String, code: String): TokenResponseDto {
         val clientKey = oAuth2Config.clientKey
