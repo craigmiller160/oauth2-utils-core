@@ -62,20 +62,21 @@ class AuthServerClientImpl(
                     "$key=$value"
                 }
 
-        // TODO make it Kotlin 1.5.x to use new functional syntax
-        try {
+        return runCatching {
             val request = HttpRequest.newBuilder(URI.create(url))
                     .header("Content-Type", "application/x-form-urlencoded")
                     .header("Authorization", "Basic $auth")
                     .POST(HttpRequest.BodyPublishers.ofString(bodyString))
                     .build()
 
-            return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                     .thenApply { it.body() }
                     .thenApply { objectMapper.readValue(it, TokenResponseDto::class.java) }
                     .get()
-        } catch (ex: Exception) {
-            throw BadAuthenticationException("Error while requesting authentication token", ex)
         }
+                .recoverCatching { ex ->
+                    throw BadAuthenticationException("Error while requesting authentication token", ex)
+                }
+                .getOrThrow()
     }
 }
