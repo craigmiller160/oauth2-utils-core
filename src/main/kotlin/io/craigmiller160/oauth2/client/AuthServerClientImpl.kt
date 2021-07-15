@@ -16,13 +16,17 @@ import java.util.*
 
 // TODO migrate tests
 class AuthServerClientImpl(
-        private val oAuth2Config: OAuth2Config
+        private val oAuth2Config: OAuth2Config,
+        providedClient: HttpClient? = null
 ) : AuthServerClient {
 
-    private val client: HttpClient = HttpClient.newBuilder()
+    constructor(oAuth2Config: OAuth2Config): this(oAuth2Config, null)
+
+    private val client: HttpClient = providedClient ?: HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1)
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build()
+
     private val objectMapper = ObjectMapper()
 
     override fun authenticateAuthCode(origin: String, code: String): TokenResponseDto {
