@@ -10,8 +10,10 @@ import java.net.URLEncoder
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util.*
+import java.util.concurrent.Flow
 
 // TODO migrate tests
 class AuthServerClientImpl(
@@ -81,5 +83,14 @@ class AuthServerClientImpl(
                     throw BadAuthenticationException("Error while requesting authentication token", ex)
                 }
                 .getOrThrow()
+    }
+
+    class ClientBodyPublisher(val content: String) : HttpRequest.BodyPublisher {
+        override fun subscribe(subscriber: Flow.Subscriber<in ByteBuffer>?) {}
+
+        override fun contentLength(): Long {
+            return content.length.toLong()
+        }
+
     }
 }
