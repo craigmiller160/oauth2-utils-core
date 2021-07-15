@@ -15,7 +15,11 @@ import org.mockito.junit.jupiter.MockitoExtension
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Flow
 import kotlin.test.assertNotNull
 
 @ExtendWith(MockitoExtension::class)
@@ -41,6 +45,30 @@ class AuthServerClientImplTest {
     private lateinit var tokenResponse: TokenResponseDto
     private lateinit var authServerClient: AuthServerClientImpl
     private val mapper = ObjectMapper()
+    private lateinit var subscriber: TestSubscriber
+
+    class TestSubscriber : Flow.Subscriber<ByteBuffer> {
+        var content: String = ""
+            get() {
+                latch.await()
+                return field
+            }
+        private val latch = CountDownLatch(1)
+
+        override fun onSubscribe(subscription: Flow.Subscription?) {}
+        override fun onError(throwable: Throwable?) {
+            throwable?.printStackTrace()
+            latch.countDown()
+        }
+        override fun onComplete() {
+            latch.countDown()
+        }
+
+        override fun onNext(item: ByteBuffer?) {
+            println("ON NEXT: $item") // TODO delete this
+            content = StandardCharsets.UTF_8.decode(item!!).toString()
+        }
+    }
 
     @BeforeEach
     fun setup() {
@@ -59,6 +87,7 @@ class AuthServerClientImplTest {
         )
         `when`(response.body())
                 .thenReturn(mapper.writeValueAsString(tokenResponse))
+        subscriber = TestSubscriber()
     }
 
     @Test
@@ -78,6 +107,10 @@ class AuthServerClientImplTest {
         assertNotNull(request)
         assertEquals("application/x-form-urlencoded", request.headers().firstValue("Content-Type").get())
         assertEquals(authHeader, request.headers().firstValue("Authorization").get())
+
+        request.bodyPublisher().get()
+                .subscribe(subscriber)
+        println("CONTENT: " + subscriber.content) // TODO delete this
 
 //        assertNotNull(request)
 //        assertEquals(key, request?.clientKey)
