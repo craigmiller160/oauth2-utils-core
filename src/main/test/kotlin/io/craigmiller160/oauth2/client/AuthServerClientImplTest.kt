@@ -16,6 +16,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.concurrent.CompletableFuture
+import kotlin.test.assertNotNull
 
 @ExtendWith(MockitoExtension::class)
 class AuthServerClientImplTest {
@@ -39,7 +40,6 @@ class AuthServerClientImplTest {
 
     private lateinit var tokenResponse: TokenResponseDto
     private lateinit var authServerClient: AuthServerClientImpl
-    private var request: AuthServerClientRequest? = null
     private val mapper = ObjectMapper()
 
     @BeforeEach
@@ -74,6 +74,11 @@ class AuthServerClientImplTest {
         val result = authServerClient.authenticateAuthCode(host, authCode)
         assertEquals(tokenResponse, result)
 
+        val request = requestCaptor.value
+        assertNotNull(request)
+        assertEquals("application/x-form-urlencoded", request.headers().firstValue("Content-Type").get())
+        assertEquals(authHeader, request.headers().firstValue("Authorization").get())
+
 //        assertNotNull(request)
 //        assertEquals(key, request?.clientKey)
 //        assertEquals(secret, request?.clientSecret)
@@ -94,7 +99,7 @@ class AuthServerClientImplTest {
     }
 
     @Test
-    fun test_authenticateRefreshToken_invalidResponseBody() {
+    fun test_authenticateRefreshToken_authError() {
         val refreshToken = "ABCDEFG"
 
 //        `when`(restTemplate.exchange(
