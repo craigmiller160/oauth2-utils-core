@@ -4,5 +4,7 @@ import io.craigmiller160.oauth2.domain.entity.AppRefreshToken
 
 interface AppRefreshTokenRepository {
     fun findByTokenId(tokenId: String): AppRefreshToken?
-    fun removeByTokenId(tokenId: String): Int
+    fun removeByTokenId(tokenId: String)
+    fun deleteById(id: Long)
+    fun save(token: AppRefreshToken): AppRefreshToken
 }
