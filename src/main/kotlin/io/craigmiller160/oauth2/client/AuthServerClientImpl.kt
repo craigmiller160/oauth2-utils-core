@@ -72,7 +72,7 @@ class AuthServerClientImpl(
 
         return runCatching {
             val request = HttpRequest.newBuilder(URI.create(url))
-                    .header("Content-Type", "application/x-form-urlencoded")
+                    .header("Content-Type", "application/x-www-form-urlencoded")
                     .header("Authorization", "Basic $auth")
                     .POST(bodyPublisherProvider(bodyString))
                     .build()

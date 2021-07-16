@@ -83,26 +83,9 @@ class AuthServerClientImplTest {
 
         val request = requestCaptor.value
         assertNotNull(request)
-        assertEquals("application/x-form-urlencoded", request.headers().firstValue("Content-Type").get())
+        assertEquals("application/x-www-form-urlencoded", request.headers().firstValue("Content-Type").get())
         assertEquals(authHeader, request.headers().firstValue("Authorization").get())
-
-//        assertNotNull(request)
-//        assertEquals(key, request?.clientKey)
-//        assertEquals(secret, request?.clientSecret)
-//
-//        Assertions.assertEquals(1, entityCaptor.allValues.size)
-//        val entity = entityCaptor.value
-//
-//        Assertions.assertEquals(this.authHeader, entity.headers["Authorization"]?.get(0))
-//        assertEquals(MediaType.APPLICATION_FORM_URLENCODED_VALUE, entity.headers["Content-Type"]?.get(0))
-//
-//        val body = entity.body
-//        Assertions.assertTrue(body is MultiValueMap<*, *>)
-//        val map = body as MultiValueMap<String, String>
-//        Assertions.assertEquals("authorization_code", map["grant_type"]?.get(0))
-//        Assertions.assertEquals("$host$redirectUri", map["redirect_uri"]?.get(0))
-//        Assertions.assertEquals(key, map["client_id"]?.get(0))
-//        Assertions.assertEquals(authCode, map["code"]?.get(0))
+        assertEquals("grant_type=authorization_code&client_id=key&code=DERFG&redirect_uri=http%3A%2F%2FlocalhostredirectUri", bodyValue)
     }
 
     @Test
