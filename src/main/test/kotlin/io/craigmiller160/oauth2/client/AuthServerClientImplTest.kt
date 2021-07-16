@@ -85,7 +85,7 @@ class AuthServerClientImplTest {
         assertNotNull(request)
         assertEquals("application/x-www-form-urlencoded", request.headers().firstValue("Content-Type").get())
         assertEquals(authHeader, request.headers().firstValue("Authorization").get())
-        assertEquals("grant_type=authorization_code&client_id=key&code=DERFG&redirect_uri=http%3A%2F%2FlocalhostredirectUri", bodyValue)
+        assertEquals("grant_type=authorization_code&client_id=$key&code=$authCode&redirect_uri=http%3A%2F%2FlocalhostredirectUri", bodyValue)
     }
 
     @Test
@@ -108,31 +108,19 @@ class AuthServerClientImplTest {
     fun test_authenticateRefreshToken() {
         val refreshToken = "ABCDEFG"
 
-//        val entityCaptor = ArgumentCaptor.forClass(HttpEntity::class.java)
-//
-//        `when`(restTemplate.exchange(
-//                eq("$host${OAuth2Config.TOKEN_PATH}"),
-//                eq(HttpMethod.POST),
-//                entityCaptor.capture(),
-//                eq(TokenResponseDto::class.java)
-//        ))
-//                .thenReturn(ResponseEntity.ok(response))
-//
-//        val result = authServerClient.authenticateRefreshToken(refreshToken)
-//        Assertions.assertEquals(response, result)
-//
-//        Assertions.assertEquals(1, entityCaptor.allValues.size)
-//        val entity = entityCaptor.value
-//
-//        Assertions.assertEquals(this.authHeader, entity.headers["Authorization"]?.get(0))
-//        assertEquals(MediaType.APPLICATION_FORM_URLENCODED_VALUE, entity.headers["Content-Type"]?.get(0))
-//
-//        val body = entity.body
-//        Assertions.assertTrue(body is MultiValueMap<*, *>)
-//        val map = body as MultiValueMap<String, String>
-//        Assertions.assertEquals("refresh_token", map["grant_type"]?.get(0))
-//        Assertions.assertEquals(refreshToken, map["refresh_token"]?.get(0))
-        TODO("Finish this")
+        val requestCaptor = ArgumentCaptor.forClass(HttpRequest::class.java)
+        `when`(client.sendAsync(requestCaptor.capture(), any<HttpResponse.BodyHandler<String>>()))
+                .thenReturn(CompletableFuture.completedFuture(response))
+
+
+        val result = authServerClient.authenticateRefreshToken(refreshToken)
+        assertEquals(tokenResponse, result)
+
+        val request = requestCaptor.value
+        assertNotNull(request)
+        assertEquals("application/x-www-form-urlencoded", request.headers().firstValue("Content-Type").get())
+        assertEquals(authHeader, request.headers().firstValue("Authorization").get())
+        assertEquals("grant_type=refresh_token&refresh_token=$refreshToken", bodyValue)
     }
 
 }
