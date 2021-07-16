@@ -3,22 +3,29 @@ package io.craigmiller160.oauth2.client
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.dto.TokenResponseDto
+import io.craigmiller160.oauth2.exception.BadAuthenticationException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.any
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
+import java.lang.RuntimeException
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @ExtendWith(MockitoExtension::class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AuthServerClientImplTest {
 
     private val accessToken = "accessToken"
@@ -91,17 +98,14 @@ class AuthServerClientImplTest {
     @Test
     fun test_authenticateRefreshToken_authError() {
         val refreshToken = "ABCDEFG"
+        `when`(client.sendAsync(any(), any<HttpResponse.BodyHandler<String>>()))
+                .thenThrow(RuntimeException("Dying"))
 
-//        `when`(restTemplate.exchange(
-//                eq("$host${OAuth2Config.TOKEN_PATH}"),
-//                eq(HttpMethod.POST),
-//                isA(HttpEntity::class.java),
-//                eq(TokenResponseDto::class.java)
-//        ))
-//                .thenReturn(ResponseEntity.noContent().build())
-//
-//        assertThrows<InvalidResponseBodyException> { authServerClient.authenticateRefreshToken(refreshToken) }
-        TODO("Finish this")
+        val ex = assertThrows<BadAuthenticationException>(message = "Error while requesting authentication token") {
+            authServerClient.authenticateRefreshToken(refreshToken)
+        }
+        assertTrue { ex.cause is RuntimeException }
+        assertEquals("Dying", ex.cause?.message)
     }
 
     @Test
