@@ -3,6 +3,7 @@ package io.craigmiller160.oauth2.service
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.domain.repository.AppRefreshTokenRepository
 import io.craigmiller160.oauth2.dto.AuthUserDto
+import io.craigmiller160.oauth2.dto.authenticatedUserToAuthUserDto
 import io.craigmiller160.oauth2.security.AuthenticatedUser
 import io.craigmiller160.oauth2.security.CookieCreator
 
@@ -21,7 +22,7 @@ abstract class AbstractOAuth2Service(
 
     override fun getAuthenticatedUser(): AuthUserDto {
         val authUser = getAuthUserContext()
-        TODO("Finish this")
+        return authenticatedUserToAuthUserDto(authUser)
     }
 
 }
