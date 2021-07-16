@@ -42,34 +42,12 @@ class AuthServerClientImplTest {
     private lateinit var client: HttpClient
     @Mock
     private lateinit var response: HttpResponse<String>
+    @Mock
+    private lateinit var bodyPublisher: HttpRequest.BodyPublisher
 
     private lateinit var tokenResponse: TokenResponseDto
     private lateinit var authServerClient: AuthServerClientImpl
     private val mapper = ObjectMapper()
-    private lateinit var subscriber: TestSubscriber
-
-    class TestSubscriber : Flow.Subscriber<ByteBuffer> {
-        var content: String = ""
-            get() {
-                latch.await()
-                return field
-            }
-        private val latch = CountDownLatch(1)
-
-        override fun onSubscribe(subscription: Flow.Subscription?) {}
-        override fun onError(throwable: Throwable?) {
-            throwable?.printStackTrace()
-            latch.countDown()
-        }
-        override fun onComplete() {
-            latch.countDown()
-        }
-
-        override fun onNext(item: ByteBuffer?) {
-            println("ON NEXT: $item") // TODO delete this
-            content = StandardCharsets.UTF_8.decode(item!!).toString()
-        }
-    }
 
     @BeforeEach
     fun setup() {
@@ -88,7 +66,6 @@ class AuthServerClientImplTest {
         )
         `when`(response.body())
                 .thenReturn(mapper.writeValueAsString(tokenResponse))
-        subscriber = TestSubscriber()
     }
 
     @Test

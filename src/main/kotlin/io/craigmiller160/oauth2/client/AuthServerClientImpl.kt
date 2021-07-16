@@ -15,13 +15,17 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.Flow
 
+typealias BodyPublisherProvider = (String) -> HttpRequest.BodyPublisher
+val defaultBodyPublisherProvider: BodyPublisherProvider = { value -> HttpRequest.BodyPublishers.ofString(value) }
+
 // TODO migrate tests
 class AuthServerClientImpl(
         private val oAuth2Config: OAuth2Config,
-        providedClient: HttpClient? = null
+        private val bodyPublisherProvider: BodyPublisherProvider,
+        providedClient: HttpClient?
 ) : AuthServerClient {
 
-    constructor(oAuth2Config: OAuth2Config): this(oAuth2Config, null)
+    constructor(oAuth2Config: OAuth2Config): this(oAuth2Config, defaultBodyPublisherProvider, null)
 
     private val client: HttpClient = providedClient ?: HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1)
@@ -71,7 +75,7 @@ class AuthServerClientImpl(
             val request = HttpRequest.newBuilder(URI.create(url))
                     .header("Content-Type", "application/x-form-urlencoded")
                     .header("Authorization", "Basic $auth")
-                    .POST(HttpRequest.BodyPublishers.ofString(bodyString))
+                    .POST(bodyPublisherProvider(bodyString))
                     .build()
 
             client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
