@@ -3,6 +3,7 @@ package io.craigmiller160.oauth2.service
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.domain.repository.AppRefreshTokenRepository
 import io.craigmiller160.oauth2.security.AuthenticatedUser
+import io.craigmiller160.oauth2.security.CookieCreator
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
@@ -20,6 +21,8 @@ class AbstractOAuth2ServiceTest {
         const val TOKEN_ID = "tokenId"
     }
 
+    @Mock
+    private lateinit var cookieConfig: OAuth2Config
     @Mock
     private lateinit var oAuth2Config: OAuth2Config
     @Mock
@@ -39,8 +42,9 @@ class AbstractOAuth2ServiceTest {
 
     class OAuth2ServiceImpl(
             oAuth2Config: OAuth2Config,
-            appRefreshTokenRepo: AppRefreshTokenRepository
-    ) : AbstractOAuth2Service(oAuth2Config, appRefreshTokenRepo) {
+            appRefreshTokenRepo: AppRefreshTokenRepository,
+            cookieCreator: CookieCreator
+    ) : AbstractOAuth2Service(oAuth2Config, appRefreshTokenRepo, cookieCreator) {
         override fun getAuthUserContext(): AuthenticatedUser {
             return AuthUserImpl(
                     USER_NAME,

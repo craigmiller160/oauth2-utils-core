@@ -15,8 +15,8 @@ class CookieCreatorTest {
     fun `create cookie`() {
         val expires = ZonedDateTime.now(ZoneId.of("GMT"))
                 .plusHours(24)
-        val cookie = CookieCreator.createTokenCookie(cookieName, token, cookiePath)
-        val expiresString = CookieCreator.cookieExpFormat.format(expires)
+        val cookie = CookieCreator().createTokenCookie(cookieName, token, cookiePath)
+        val expiresString = CookieCreator().cookieExpFormat.format(expires)
         // There is still a timing risk here that can cause this test to fail...
         assertEquals("$cookieName=$token; Max-Age=86400; Expires=$expiresString; Secure; HttpOnly; SameSite=strict; Path=$cookiePath", cookie)
     }

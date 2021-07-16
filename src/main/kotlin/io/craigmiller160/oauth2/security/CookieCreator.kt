@@ -4,9 +4,12 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-object CookieCreator {
+// TODO need to bindAsContract
+class CookieCreator {
 
-    private const val DEFAULT_MAX_AGE = 24 * 60 * 60
+    companion object {
+        private const val DEFAULT_MAX_AGE = 24 * 60 * 60
+    }
 
     val cookieExpFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z")
 
