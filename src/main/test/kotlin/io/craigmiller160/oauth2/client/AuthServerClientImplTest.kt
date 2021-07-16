@@ -12,15 +12,10 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.any
 import org.mockito.junit.jupiter.MockitoExtension
-import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Flow
 import kotlin.test.assertNotNull
 
 @ExtendWith(MockitoExtension::class)
@@ -45,6 +40,7 @@ class AuthServerClientImplTest {
     @Mock
     private lateinit var bodyPublisher: HttpRequest.BodyPublisher
 
+    private var bodyValue: String = ""
     private lateinit var tokenResponse: TokenResponseDto
     private lateinit var authServerClient: AuthServerClientImpl
     private val mapper = ObjectMapper()
@@ -58,7 +54,10 @@ class AuthServerClientImplTest {
         `when`(oAuthConfig.clientSecret)
                 .thenReturn(secret)
 
-        authServerClient = AuthServerClientImpl(oAuthConfig, client)
+        authServerClient = AuthServerClientImpl(oAuthConfig, client) { value ->
+            bodyValue = value
+            bodyPublisher
+        }
         tokenResponse = TokenResponseDto(
                 accessToken = accessToken,
                 refreshToken = refreshToken,
@@ -66,6 +65,7 @@ class AuthServerClientImplTest {
         )
         `when`(response.body())
                 .thenReturn(mapper.writeValueAsString(tokenResponse))
+        bodyValue = ""
     }
 
     @Test
@@ -85,10 +85,6 @@ class AuthServerClientImplTest {
         assertNotNull(request)
         assertEquals("application/x-form-urlencoded", request.headers().firstValue("Content-Type").get())
         assertEquals(authHeader, request.headers().firstValue("Authorization").get())
-
-        request.bodyPublisher().get()
-                .subscribe(subscriber)
-        println("CONTENT: " + subscriber.content) // TODO delete this
 
 //        assertNotNull(request)
 //        assertEquals(key, request?.clientKey)

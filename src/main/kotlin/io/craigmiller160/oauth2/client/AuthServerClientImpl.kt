@@ -17,20 +17,19 @@ import java.util.concurrent.Flow
 
 typealias BodyPublisherProvider = (String) -> HttpRequest.BodyPublisher
 val defaultBodyPublisherProvider: BodyPublisherProvider = { value -> HttpRequest.BodyPublishers.ofString(value) }
+val defaultClient: HttpClient = HttpClient.newBuilder()
+        .version(HttpClient.Version.HTTP_1_1)
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .build()
 
-// TODO migrate tests
 class AuthServerClientImpl(
         private val oAuth2Config: OAuth2Config,
-        private val bodyPublisherProvider: BodyPublisherProvider,
-        providedClient: HttpClient?
+        private val client: HttpClient,
+        private val bodyPublisherProvider: BodyPublisherProvider
 ) : AuthServerClient {
 
-    constructor(oAuth2Config: OAuth2Config): this(oAuth2Config, defaultBodyPublisherProvider, null)
-
-    private val client: HttpClient = providedClient ?: HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_1_1)
-            .followRedirects(HttpClient.Redirect.NORMAL)
-            .build()
+    constructor(oAuth2Config: OAuth2Config):
+            this(oAuth2Config, defaultClient, defaultBodyPublisherProvider)
 
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
