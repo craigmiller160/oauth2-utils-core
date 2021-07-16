@@ -36,6 +36,10 @@ class AuthServerClientImpl(
     constructor(oAuth2Config: OAuth2Config):
             this(oAuth2Config, defaultHttpClientProvider, defaultBodyPublisherProvider)
 
+    init {
+        System.setProperty("jdk.internal.httpclient.disableHostnameVerification", "true")
+    }
+
     private val client: HttpClient = clientProvider()
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
