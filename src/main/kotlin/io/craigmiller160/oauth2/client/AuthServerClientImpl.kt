@@ -14,23 +14,29 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.Flow
+import javax.net.ssl.SSLContext
 
+typealias HttpClientProvider = () -> HttpClient
 typealias BodyPublisherProvider = (String) -> HttpRequest.BodyPublisher
 val defaultBodyPublisherProvider: BodyPublisherProvider = { value -> HttpRequest.BodyPublishers.ofString(value) }
-val defaultClient: HttpClient = HttpClient.newBuilder()
-        .version(HttpClient.Version.HTTP_1_1)
-        .followRedirects(HttpClient.Redirect.NORMAL)
-        .build()
+val defaultHttpClientProvider: HttpClientProvider = {
+    HttpClient.newBuilder()
+            .sslContext(SSLContext.getInstance("TLS"))
+            .version(HttpClient.Version.HTTP_1_1)
+            .followRedirects(HttpClient.Redirect.NORMAL)
+            .build()
+}
 
 class AuthServerClientImpl(
         private val oAuth2Config: OAuth2Config,
-        private val client: HttpClient,
+        private val clientProvider: HttpClientProvider,
         private val bodyPublisherProvider: BodyPublisherProvider
 ) : AuthServerClient {
 
     constructor(oAuth2Config: OAuth2Config):
-            this(oAuth2Config, defaultClient, defaultBodyPublisherProvider)
+            this(oAuth2Config, defaultHttpClientProvider, defaultBodyPublisherProvider)
 
+    private val client: HttpClient = clientProvider()
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
     override fun authenticateAuthCode(origin: String, code: String): TokenResponseDto {

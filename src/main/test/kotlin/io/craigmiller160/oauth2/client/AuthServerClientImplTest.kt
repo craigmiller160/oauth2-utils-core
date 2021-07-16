@@ -61,7 +61,7 @@ class AuthServerClientImplTest {
         `when`(oAuthConfig.clientSecret)
                 .thenReturn(secret)
 
-        authServerClient = AuthServerClientImpl(oAuthConfig, client) { value ->
+        authServerClient = AuthServerClientImpl(oAuthConfig, { client }) { value ->
             bodyValue = value
             bodyPublisher
         }
