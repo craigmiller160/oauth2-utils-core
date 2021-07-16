@@ -21,7 +21,7 @@ typealias BodyPublisherProvider = (String) -> HttpRequest.BodyPublisher
 val defaultBodyPublisherProvider: BodyPublisherProvider = { value -> HttpRequest.BodyPublishers.ofString(value) }
 val defaultHttpClientProvider: HttpClientProvider = {
     HttpClient.newBuilder()
-            .sslContext(SSLContext.getInstance("TLS"))
+            .sslContext(SSLContext.getDefault())
             .version(HttpClient.Version.HTTP_1_1)
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build()
