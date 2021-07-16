@@ -5,6 +5,8 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.dto.TokenResponseDto
 import io.craigmiller160.oauth2.exception.BadAuthenticationException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.URLEncoder
 import java.net.http.HttpClient
@@ -33,6 +35,8 @@ class AuthServerClientImpl(
         private val bodyPublisherProvider: BodyPublisherProvider
 ) : AuthServerClient {
 
+    private val logger: Logger = LoggerFactory.getLogger(AuthServerClientImpl::class.java)
+
     constructor(oAuth2Config: OAuth2Config):
             this(oAuth2Config, defaultHttpClientProvider, defaultBodyPublisherProvider)
 
@@ -44,6 +48,7 @@ class AuthServerClientImpl(
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
     override fun authenticateAuthCode(origin: String, code: String): TokenResponseDto {
+        logger.debug("Sending auth code request")
         val clientKey = oAuth2Config.clientKey
         val redirectUri = "$origin${oAuth2Config.authCodeRedirectUri}"
 
@@ -58,6 +63,7 @@ class AuthServerClientImpl(
     }
 
     override fun authenticateRefreshToken(refreshToken: String): TokenResponseDto {
+        logger.debug("Sending refresh token request")
         val body = mapOf(
                 "grant_type" to "refresh_token",
                 "refresh_token" to refreshToken
