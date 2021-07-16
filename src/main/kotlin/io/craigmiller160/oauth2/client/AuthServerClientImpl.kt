@@ -29,7 +29,7 @@ val defaultHttpClientProvider: HttpClientProvider = {
             .build()
 }
 
-class AuthServerClientImpl(
+open class AuthServerClientImpl(
         private val oAuth2Config: OAuth2Config,
         clientProvider: HttpClientProvider,
         private val bodyPublisherProvider: BodyPublisherProvider
