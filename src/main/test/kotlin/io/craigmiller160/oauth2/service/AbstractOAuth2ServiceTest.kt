@@ -10,6 +10,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import kotlin.test.assertEquals
 
 @ExtendWith(MockitoExtension::class)
 class AbstractOAuth2ServiceTest {
@@ -22,6 +23,13 @@ class AbstractOAuth2ServiceTest {
         const val TOKEN_ID = "tokenId"
         const val COOKIE_NAME = "cookieName"
         const val COOKIE_PATH = "cookiePath"
+        private val authUser = AuthUserImpl(
+                USER_NAME,
+                ROLES,
+                FIRST_NAME,
+                LAST_NAME,
+                TOKEN_ID
+        )
     }
 
     @Mock
@@ -48,7 +56,11 @@ class AbstractOAuth2ServiceTest {
 
     @Test
     fun `getAuthenticatedUser()`() {
-        TODO("Finish this")
+        val result = oAuth2Service.getAuthenticatedUser()
+        assertEquals(authUser.userName, result.username)
+        assertEquals(authUser.roles, result.roles)
+        assertEquals(authUser.firstName, result.firstName)
+        assertEquals(authUser.lastName, result.lastName)
     }
 
     class OAuth2ServiceImpl(
@@ -57,13 +69,7 @@ class AbstractOAuth2ServiceTest {
             cookieCreator: CookieCreator
     ) : AbstractOAuth2Service(oAuth2Config, appRefreshTokenRepo, cookieCreator) {
         override fun getAuthUserContext(): AuthenticatedUser {
-            return AuthUserImpl(
-                    USER_NAME,
-                    ROLES,
-                    FIRST_NAME,
-                    LAST_NAME,
-                    TOKEN_ID
-            )
+            return authUser
         }
     }
 
