@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
@@ -19,10 +20,12 @@ class AbstractOAuth2ServiceTest {
         const val FIRST_NAME = "firstName"
         const val LAST_NAME = "lastName"
         const val TOKEN_ID = "tokenId"
+        const val COOKIE_NAME = "cookieName"
+        const val COOKIE_PATH = "cookiePath"
     }
 
     @Mock
-    private lateinit var cookieConfig: OAuth2Config
+    private lateinit var cookieCreator: CookieCreator
     @Mock
     private lateinit var oAuth2Config: OAuth2Config
     @Mock
@@ -32,7 +35,15 @@ class AbstractOAuth2ServiceTest {
 
     @Test
     fun `logout()`() {
-        TODO("Finish this")
+        `when`(oAuth2Config.cookieName)
+                .thenReturn(COOKIE_NAME)
+        `when`(oAuth2Config.getOrDefaultCookiePath())
+                .thenReturn(COOKIE_PATH)
+        oAuth2Service.logout()
+        verify(appRefreshTokenRepo, times(1))
+                .removeByTokenId(TOKEN_ID)
+        verify(cookieCreator, times(1))
+                .createTokenCookie(COOKIE_NAME, COOKIE_PATH, "", 0)
     }
 
     @Test

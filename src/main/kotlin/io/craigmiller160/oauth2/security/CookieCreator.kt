@@ -13,7 +13,7 @@ class CookieCreator {
 
     val cookieExpFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z")
 
-    fun createTokenCookie(cookieName: String, token: String, cookiePath: String, maxAgeSecs: Int = DEFAULT_MAX_AGE): String {
+    fun createTokenCookie(cookieName: String, cookiePath: String, token: String, maxAgeSecs: Int = DEFAULT_MAX_AGE): String {
         val expires = ZonedDateTime.now(ZoneId.of("GMT"))
                 .plusHours(24)
         val expiresString = cookieExpFormat.format(expires)
