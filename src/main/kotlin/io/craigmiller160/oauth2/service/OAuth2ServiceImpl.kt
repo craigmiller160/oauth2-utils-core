@@ -7,22 +7,21 @@ import io.craigmiller160.oauth2.dto.authenticatedUserToAuthUserDto
 import io.craigmiller160.oauth2.security.AuthenticatedUser
 import io.craigmiller160.oauth2.security.CookieCreator
 
-abstract class AbstractOAuth2Service(
+class OAuth2ServiceImpl(
         private val oAuth2Config: OAuth2Config,
         private val appRefreshTokenRepo: AppRefreshTokenRepository,
-        private val cookieCreator: CookieCreator
+        private val cookieCreator: CookieCreator,
+        private val authUserProvider: AuthUserProvider
 ) : OAuth2Service {
 
-    protected abstract fun getAuthUserContext(): AuthenticatedUser
-
     override fun logout(): String {
-        val authUser = getAuthUserContext()
+        val authUser = authUserProvider.provide()
         appRefreshTokenRepo.removeByTokenId(authUser.tokenId)
         return cookieCreator.createTokenCookie(oAuth2Config.cookieName, oAuth2Config.getOrDefaultCookiePath(), "", 0)
     }
 
     override fun getAuthenticatedUser(): AuthUserDto {
-        val authUser = getAuthUserContext()
+        val authUser = authUserProvider.provide()
         return authenticatedUserToAuthUserDto(authUser)
     }
 
