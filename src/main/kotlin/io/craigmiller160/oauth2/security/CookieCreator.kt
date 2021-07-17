@@ -4,7 +4,6 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-// TODO need to bindAsContract
 class CookieCreator {
 
     companion object {
