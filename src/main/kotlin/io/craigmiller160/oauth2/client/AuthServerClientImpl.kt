@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.dto.TokenResponseDto
 import io.craigmiller160.oauth2.exception.BadAuthenticationException
+import io.craigmiller160.oauth2.provider.HttpClientProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -18,10 +19,9 @@ import java.util.*
 import java.util.concurrent.Flow
 import javax.net.ssl.SSLContext
 
-typealias HttpClientProvider = () -> HttpClient
 typealias BodyPublisherProvider = (String) -> HttpRequest.BodyPublisher
 val defaultBodyPublisherProvider: BodyPublisherProvider = { value -> HttpRequest.BodyPublishers.ofString(value) }
-val defaultHttpClientProvider: HttpClientProvider = {
+val defaultHttpClientProvider = HttpClientProvider {
     HttpClient.newBuilder()
             .sslContext(SSLContext.getDefault())
             .version(HttpClient.Version.HTTP_1_1)
@@ -44,7 +44,7 @@ class AuthServerClientImpl(
         System.setProperty("jdk.internal.httpclient.disableHostnameVerification", "true")
     }
 
-    private val client: HttpClient = clientProvider()
+    private val client: HttpClient = clientProvider.provide()
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
     override fun authenticateAuthCode(origin: String, code: String): TokenResponseDto {
