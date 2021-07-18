@@ -8,8 +8,8 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 class AppRefreshTokenRepositoryImpl (
-        private val sqlConnectionProvider: SqlConnectionProvider,
-        private val oAuth2Config: OAuth2Config
+        private val oAuth2Config: OAuth2Config,
+        private val sqlConnectionProvider: SqlConnectionProvider
 ) : AppRefreshTokenRepository {
     private val deleteById = """
         DELETE FROM app_refresh_tokens

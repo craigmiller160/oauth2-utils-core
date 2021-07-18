@@ -52,10 +52,9 @@ class AppRefreshTokenRepositoryImplTest {
         MockitoAnnotations.openMocks(this)
         `when`(oAuth2Config.getOrDefaultSchemaName())
                 .thenReturn(OAuth2Config.SCHEMA)
-        val connProvider = SqlConnectionProvider {
+        repo = AppRefreshTokenRepositoryImpl(oAuth2Config) {
             DriverManager.getConnection(getJdbcUrl())
         }
-        repo = AppRefreshTokenRepositoryImpl(connProvider, oAuth2Config)
     }
 
     @AfterEach
