@@ -23,8 +23,7 @@ class RefreshTokenServiceImpl(
                 ?.let { refreshToken ->
                     runCatching {
                         val tokenResponse = authServerClient.authenticateRefreshToken(refreshToken.refreshToken)
-                        appRefreshTokenRepo.deleteById(refreshToken.id)
-                        appRefreshTokenRepo.save(AppRefreshToken(0, tokenResponse.tokenId, tokenResponse.refreshToken))
+                        appRefreshTokenRepo.save(AppRefreshToken(refreshToken.id, tokenResponse.tokenId, tokenResponse.refreshToken))
                         tokenResponse
                     }
                             .onFailure { ex ->
