@@ -1,7 +1,6 @@
 package io.craigmiller160.oauth2.domain.repository.impl
 
 import io.craigmiller160.oauth2.config.OAuth2Config
-import io.craigmiller160.oauth2.domain.SqlConnectionProvider
 import io.craigmiller160.oauth2.domain.entity.AppRefreshToken
 import org.h2.tools.Server
 import org.junit.jupiter.api.*
