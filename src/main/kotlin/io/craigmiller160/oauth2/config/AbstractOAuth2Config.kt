@@ -12,6 +12,13 @@ abstract class AbstractOAuth2Config : OAuth2Config {
 
     override lateinit var jwkSet: JWKSet
 
+    override fun getOrDefaultRefreshTokenSchema(): String {
+        if (refreshTokenSchema.isNotBlank()) {
+            return refreshTokenSchema
+        }
+        return OAuth2Config.SCHEMA
+    }
+
     override fun getOrDefaultCookiePath(): String {
         if (cookiePath.isNotBlank()) {
             return cookiePath
