@@ -58,7 +58,7 @@ class AppRefreshTokenRepositoryImpl (
         return sqlConnectionProvider.provide().use { conn ->
             conn.autoCommit = false
             conn.createStatement().use { stmt ->
-                stmt.executeUpdate("SET search_path TO ${oAuth2Config.getOrDefaultSchemaName()}")
+                stmt.executeUpdate("SET search_path TO ${oAuth2Config.getOrDefaultRefreshTokenSchema()}")
             }
             conn.commit()
             block(conn)

@@ -50,7 +50,7 @@ class AppRefreshTokenRepositoryImplTest {
     @BeforeEach
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        `when`(oAuth2Config.getOrDefaultSchemaName())
+        `when`(oAuth2Config.getOrDefaultRefreshTokenSchema())
                 .thenReturn(OAuth2Config.SCHEMA)
         repo = AppRefreshTokenRepositoryImpl(oAuth2Config) {
             DriverManager.getConnection(getJdbcUrl())

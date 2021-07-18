@@ -12,9 +12,9 @@ abstract class AbstractOAuth2Config : OAuth2Config {
 
     override lateinit var jwkSet: JWKSet
 
-    override fun getOrDefaultSchemaName(): String {
-        if (schemaName.isNotBlank()) {
-            return schemaName
+    override fun getOrDefaultRefreshTokenSchema(): String {
+        if (refreshTokenSchema.isNotBlank()) {
+            return refreshTokenSchema
         }
         return OAuth2Config.SCHEMA
     }

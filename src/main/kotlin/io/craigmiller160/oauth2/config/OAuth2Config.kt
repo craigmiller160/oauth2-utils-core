@@ -24,11 +24,11 @@ interface OAuth2Config {
     var authLoginBaseUri: String
     var insecurePaths: String
     var authCodeWaitMins: Long
-    var schemaName: String
+    var refreshTokenSchema: String
 
     var jwkSet: JWKSet
 
-    fun getOrDefaultSchemaName(): String
+    fun getOrDefaultRefreshTokenSchema(): String
     fun getOrDefaultCookiePath(): String
     fun getBaseWait(): Long
     fun loadJWKSet(): JWKSet
