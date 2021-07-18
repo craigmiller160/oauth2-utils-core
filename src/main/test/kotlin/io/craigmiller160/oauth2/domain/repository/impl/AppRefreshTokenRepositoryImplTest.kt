@@ -1,9 +1,13 @@
 package io.craigmiller160.oauth2.domain.repository.impl
 
+import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.domain.SqlConnectionProvider
 import io.craigmiller160.oauth2.domain.entity.AppRefreshToken
 import org.h2.tools.Server
 import org.junit.jupiter.api.*
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
 import java.nio.file.Files
 import java.sql.DriverManager
 import kotlin.test.assertEquals
@@ -32,6 +36,9 @@ class AppRefreshTokenRepositoryImplTest {
         }
     }
 
+    @Mock
+    private lateinit var oAuth2Config: OAuth2Config
+
     private val tempFile = Files.createTempFile("prefix", "suffix")
     private lateinit var repo: AppRefreshTokenRepositoryImpl
 
@@ -42,10 +49,13 @@ class AppRefreshTokenRepositoryImplTest {
 
     @BeforeEach
     fun setup() {
+        MockitoAnnotations.openMocks(this)
+        `when`(oAuth2Config.getOrDefaultSchemaName())
+                .thenReturn(OAuth2Config.SCHEMA)
         val connProvider = SqlConnectionProvider {
             DriverManager.getConnection(getJdbcUrl())
         }
-        repo = AppRefreshTokenRepositoryImpl(connProvider)
+        repo = AppRefreshTokenRepositoryImpl(connProvider, oAuth2Config)
     }
 
     @AfterEach
