@@ -6,7 +6,6 @@ import io.craigmiller160.oauth2.domain.repository.AppRefreshTokenRepository
 import java.sql.Connection
 import java.sql.ResultSet
 
-// TODO need to setup inject in jax-rs
 class AppRefreshTokenRepositoryImpl (
         private val sqlConnectionProvider: SqlConnectionProvider
 ) : AppRefreshTokenRepository {
