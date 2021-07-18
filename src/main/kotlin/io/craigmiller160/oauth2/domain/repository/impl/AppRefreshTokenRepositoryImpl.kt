@@ -52,14 +52,25 @@ class AppRefreshTokenRepositoryImpl (
         }
     }
 
-    override fun findByTokenId(tokenId: String): AppRefreshToken? {
+    private fun <T> executeSql(block: (Connection) -> T): T {
         return sqlConnectionProvider.provide().use { conn ->
+            conn.autoCommit = false
+            conn.createStatement().use { stmt ->
+                stmt.executeUpdate("SET search_path TO dev") // TODO need more generic way to do this
+            }
+            conn.commit()
+            block(conn)
+        }
+    }
+
+    override fun findByTokenId(tokenId: String): AppRefreshToken? {
+        return executeSql { conn ->
             doFindByTokenId(conn, tokenId)
         }
     }
 
     override fun removeByTokenId(tokenId: String) {
-        sqlConnectionProvider.provide().use { conn ->
+        executeSql { conn ->
             conn.prepareStatement(deleteByTokenId).use { stmt ->
                 stmt.setString(1, tokenId)
                 stmt.executeUpdate()
@@ -69,7 +80,7 @@ class AppRefreshTokenRepositoryImpl (
     }
 
     override fun deleteById(id: Long) {
-        sqlConnectionProvider.provide().use { conn ->
+        executeSql { conn ->
             conn.prepareStatement(deleteById).use { stmt ->
                 stmt.setLong(1, id)
                 stmt.executeUpdate()
@@ -98,7 +109,7 @@ class AppRefreshTokenRepositoryImpl (
     }
 
     override fun save(token: AppRefreshToken): AppRefreshToken {
-        return sqlConnectionProvider.provide().use { conn ->
+        return executeSql { conn ->
             if (token.id > 0) {
                 updateToken(conn, token)
             } else {
