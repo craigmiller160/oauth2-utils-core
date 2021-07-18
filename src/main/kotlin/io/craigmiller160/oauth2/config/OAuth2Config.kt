@@ -9,6 +9,7 @@ interface OAuth2Config {
         const val JWK_PATH = "/jwk"
         const val TOKEN_PATH = "/oauth/token"
         const val AUTH_CODE_LOGIN_PATH = "/ui/login"
+        const val SCHEMA = "public"
     }
 
     var authServerHost: String
@@ -23,9 +24,11 @@ interface OAuth2Config {
     var authLoginBaseUri: String
     var insecurePaths: String
     var authCodeWaitMins: Long
+    var schemaName: String
 
     var jwkSet: JWKSet
 
+    fun getOrDefaultSchemaName(): String
     fun getOrDefaultCookiePath(): String
     fun getBaseWait(): Long
     fun loadJWKSet(): JWKSet

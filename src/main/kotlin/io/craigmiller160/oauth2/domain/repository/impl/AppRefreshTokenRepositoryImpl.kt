@@ -1,5 +1,6 @@
 package io.craigmiller160.oauth2.domain.repository.impl
 
+import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.domain.SqlConnectionProvider
 import io.craigmiller160.oauth2.domain.entity.AppRefreshToken
 import io.craigmiller160.oauth2.domain.repository.AppRefreshTokenRepository
@@ -7,7 +8,8 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 class AppRefreshTokenRepositoryImpl (
-        private val sqlConnectionProvider: SqlConnectionProvider
+        private val sqlConnectionProvider: SqlConnectionProvider,
+        private val oAuth2Config: OAuth2Config
 ) : AppRefreshTokenRepository {
     private val deleteById = """
         DELETE FROM app_refresh_tokens
@@ -56,7 +58,7 @@ class AppRefreshTokenRepositoryImpl (
         return sqlConnectionProvider.provide().use { conn ->
             conn.autoCommit = false
             conn.createStatement().use { stmt ->
-                stmt.executeUpdate("SET search_path TO dev") // TODO need more generic way to do this
+                stmt.executeUpdate("SET search_path TO ${oAuth2Config.getOrDefaultSchemaName()}")
             }
             conn.commit()
             block(conn)
