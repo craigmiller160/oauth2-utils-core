@@ -1,4 +1,4 @@
-package io.craigmiller160.oauth2.service
+package io.craigmiller160.oauth2.service.impl
 
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.domain.repository.AppRefreshTokenRepository
@@ -7,7 +7,6 @@ import io.craigmiller160.oauth2.security.CookieCreator
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
