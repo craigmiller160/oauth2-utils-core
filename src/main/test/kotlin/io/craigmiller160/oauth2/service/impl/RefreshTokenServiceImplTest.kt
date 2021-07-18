@@ -45,9 +45,7 @@ class RefreshTokenServiceImplTest {
         Assertions.assertEquals(tokenResponse, result)
 
         Mockito.verify(appRefreshTokenRepo, Mockito.times(1))
-                .deleteById(1)
-        Mockito.verify(appRefreshTokenRepo, Mockito.times(1))
-                .save(AppRefreshToken(0, tokenResponse.tokenId, tokenResponse.refreshToken))
+                .save(AppRefreshToken(1, tokenResponse.tokenId, tokenResponse.refreshToken))
     }
 
     @Test
