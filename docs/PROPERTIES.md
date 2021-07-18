@@ -2,6 +2,14 @@
 
 The OAuth2 setup is configuration-driven. Here are all the properties that affect it.
 
+## Database Schema
+
+Refresh tokens are stored in the Postgres database. By default the table is expected to be in the `public` schema. If that is not the case, then the following property needs to be set.
+
+```
+oauth2.refresh-token-schema=schema_name
+```
+
 ## Connecting to Auth Server
 
 The application needs to connect to the Auth Server when it first starts up. This is done to download the JWK information for validating the tokens.
