@@ -4,15 +4,17 @@ import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.domain.entity.AppRefreshToken
 import org.h2.tools.Server
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.jupiter.MockitoExtension
 import java.nio.file.Files
 import java.sql.DriverManager
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@ExtendWith(MockitoExtension::class)
 class AppRefreshTokenRepositoryImplTest {
 
     companion object {
@@ -48,7 +50,6 @@ class AppRefreshTokenRepositoryImplTest {
 
     @BeforeEach
     fun setup() {
-        MockitoAnnotations.openMocks(this)
         `when`(oAuth2Config.getOrDefaultRefreshTokenSchema())
                 .thenReturn(OAuth2Config.SCHEMA)
         repo = AppRefreshTokenRepositoryImpl(oAuth2Config) {
