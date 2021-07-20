@@ -38,7 +38,7 @@ class AuthCodeServiceImplTest {
     private val origin = "TheOrigin"
 
     @Mock
-    private lateinit var oAuthConfig: OAuth2Config
+    private lateinit var oAuth2Config: OAuth2Config
 
     @Mock
     private lateinit var authServerClient: AuthServerClient
@@ -64,11 +64,11 @@ class AuthCodeServiceImplTest {
                 .thenReturn(session)
         Mockito.`when`(req.getHeader("Origin"))
                 .thenReturn(origin)
-        Mockito.`when`(oAuthConfig.authCodeRedirectUri)
+        Mockito.`when`(oAuth2Config.authCodeRedirectUri)
                 .thenReturn(redirectUri)
-        Mockito.`when`(oAuthConfig.clientKey)
+        Mockito.`when`(oAuth2Config.clientKey)
                 .thenReturn(clientKey)
-        Mockito.`when`(oAuthConfig.authLoginBaseUri)
+        Mockito.`when`(oAuth2Config.authLoginBaseUri)
                 .thenReturn("")
 
         val result = authCodeService.prepareAuthCodeLogin(req)
@@ -93,13 +93,13 @@ class AuthCodeServiceImplTest {
     fun test_code() {
         Mockito.`when`(req.session)
                 .thenReturn(session)
-        Mockito.`when`(oAuthConfig.cookieMaxAgeSecs)
+        Mockito.`when`(oAuth2Config.cookieMaxAgeSecs)
                 .thenReturn(cookieExpSecs)
-        Mockito.`when`(oAuthConfig.cookieName)
+        Mockito.`when`(oAuth2Config.cookieName)
                 .thenReturn(cookieName)
-        Mockito.`when`(oAuthConfig.postAuthRedirect)
+        Mockito.`when`(oAuth2Config.postAuthRedirect)
                 .thenReturn(postAuthRedirect)
-        Mockito.`when`(oAuthConfig.getOrDefaultCookiePath())
+        Mockito.`when`(oAuth2Config.getOrDefaultCookiePath())
                 .thenReturn(path)
 
         val authCode = "DEF"
@@ -115,7 +115,7 @@ class AuthCodeServiceImplTest {
         Mockito.`when`(authServerClient.authenticateAuthCode(origin, authCode))
                 .thenReturn(response)
 
-        Mockito.`when`(cookieCreator.createTokenCookie(cookieName, oAuthConfig.getOrDefaultCookiePath(), "access", oAuthConfig.cookieMaxAgeSecs))
+        Mockito.`when`(cookieCreator.createTokenCookie(cookieName, oAuth2Config.getOrDefaultCookiePath(), "access", oAuth2Config.cookieMaxAgeSecs))
                 .thenReturn("Cookie")
 
         val (cookie, redirect) = authCodeService.code(req, authCode, state)

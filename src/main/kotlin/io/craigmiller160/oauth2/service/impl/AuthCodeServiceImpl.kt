@@ -18,7 +18,7 @@ import java.time.ZonedDateTime
 import javax.servlet.http.HttpServletRequest
 
 class AuthCodeServiceImpl(
-        private val oAuthConfig: OAuth2Config,
+        private val oAuth2Config: OAuth2Config,
         private val authServerClient: AuthServerClient,
         private val appRefreshTokenRepo: AppRefreshTokenRepository,
         private val cookieCreator: CookieCreator
@@ -36,15 +36,15 @@ class AuthCodeServiceImpl(
 
         val state = generateAuthCodeState()
         req.session.setAttribute(AuthCodeService.STATE_ATTR, state)
-        req.session.setAttribute(AuthCodeService.STATE_EXP_ATTR, ZonedDateTime.now(ZoneId.of("UTC")).plusMinutes(oAuthConfig.authCodeWaitMins))
+        req.session.setAttribute(AuthCodeService.STATE_EXP_ATTR, ZonedDateTime.now(ZoneId.of("UTC")).plusMinutes(oAuth2Config.authCodeWaitMins))
         req.session.setAttribute(AuthCodeService.ORIGIN, origin)
 
         val loginPath = OAuth2Config.AUTH_CODE_LOGIN_PATH
-        val clientKey = URLEncoder.encode(oAuthConfig.clientKey, StandardCharsets.UTF_8)
+        val clientKey = URLEncoder.encode(oAuth2Config.clientKey, StandardCharsets.UTF_8)
         val encodedState = URLEncoder.encode(state, StandardCharsets.UTF_8)
 
-        val redirectUri = URLEncoder.encode("$origin${oAuthConfig.authCodeRedirectUri}", StandardCharsets.UTF_8)
-        val host = "$origin${oAuthConfig.authLoginBaseUri}"
+        val redirectUri = URLEncoder.encode("$origin${oAuth2Config.authCodeRedirectUri}", StandardCharsets.UTF_8)
+        val host = "$origin${oAuth2Config.authLoginBaseUri}"
 
         return "$host$loginPath?response_type=code&client_id=$clientKey&redirect_uri=$redirectUri&state=$encodedState"
     }
@@ -70,7 +70,7 @@ class AuthCodeServiceImpl(
         val manageRefreshToken = AppRefreshToken(0, tokens.tokenId, tokens.refreshToken)
         appRefreshTokenRepo.removeByTokenId(tokens.tokenId)
         appRefreshTokenRepo.save(manageRefreshToken)
-        val cookie = cookieCreator.createTokenCookie(oAuthConfig.cookieName, oAuthConfig.getOrDefaultCookiePath(), tokens.accessToken, oAuthConfig.cookieMaxAgeSecs)
-        return AuthCodeSuccessDto(cookie, oAuthConfig.postAuthRedirect)
+        val cookie = cookieCreator.createTokenCookie(oAuth2Config.cookieName, oAuth2Config.getOrDefaultCookiePath(), tokens.accessToken, oAuth2Config.cookieMaxAgeSecs)
+        return AuthCodeSuccessDto(cookie, oAuth2Config.postAuthRedirect)
     }
 }
