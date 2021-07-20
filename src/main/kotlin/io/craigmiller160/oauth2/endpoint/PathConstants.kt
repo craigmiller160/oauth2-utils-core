@@ -1,6 +1,6 @@
-package io.craigmiller160.oauth2.resource
+package io.craigmiller160.oauth2.endpoint
 
-object ResourceConstants {
+object PathConstants {
     const val ROOT_PATH = "/oauth"
     const val AUTHCODE_LOGIN_PATH = "/authcode/login"
     const val AUTHCODE_CODE_PATH = "/authcode/code"
