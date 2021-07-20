@@ -24,12 +24,6 @@ class AuthCodeServiceImpl(
         private val cookieCreator: CookieCreator
 ) : AuthCodeService {
 
-    companion object {
-        const val STATE_ATTR = "state"
-        const val STATE_EXP_ATTR = "stateExp"
-        const val ORIGIN = "origin"
-    }
-
     private fun generateAuthCodeState(): String {
         val random = SecureRandom()
         val bigInt = BigInteger(130, random)
@@ -41,9 +35,9 @@ class AuthCodeServiceImpl(
                 ?: throw BadAuthCodeRequestException("Missing origin header on request")
 
         val state = generateAuthCodeState()
-        req.session.setAttribute(STATE_ATTR, state)
-        req.session.setAttribute(STATE_EXP_ATTR, ZonedDateTime.now(ZoneId.of("UTC")).plusMinutes(oAuthConfig.authCodeWaitMins))
-        req.session.setAttribute(ORIGIN, origin)
+        req.session.setAttribute(AuthCodeService.STATE_ATTR, state)
+        req.session.setAttribute(AuthCodeService.STATE_EXP_ATTR, ZonedDateTime.now(ZoneId.of("UTC")).plusMinutes(oAuthConfig.authCodeWaitMins))
+        req.session.setAttribute(AuthCodeService.ORIGIN, origin)
 
         val loginPath = OAuth2Config.AUTH_CODE_LOGIN_PATH
         val clientKey = URLEncoder.encode(oAuthConfig.clientKey, StandardCharsets.UTF_8)
@@ -56,8 +50,8 @@ class AuthCodeServiceImpl(
     }
 
     override fun code(req: HttpServletRequest, code: String, state: String): AuthCodeSuccessDto {
-        val expectedState = req.session.getAttribute(STATE_ATTR) as String?
-        val stateExp = req.session.getAttribute(STATE_EXP_ATTR) as ZonedDateTime?
+        val expectedState = req.session.getAttribute(AuthCodeService.STATE_ATTR) as String?
+        val stateExp = req.session.getAttribute(AuthCodeService.STATE_EXP_ATTR) as ZonedDateTime?
         if (expectedState != state) {
             throw BadAuthCodeStateException("State does not match expected value")
         }
@@ -65,12 +59,12 @@ class AuthCodeServiceImpl(
             throw BadAuthCodeStateException("Auth code state has expired")
         }
 
-        val origin = req.session.getAttribute(ORIGIN) as String?
+        val origin = req.session.getAttribute(AuthCodeService.ORIGIN) as String?
                 ?: throw BadAuthCodeRequestException("Missing origin attribute in session")
 
-        req.session.removeAttribute(STATE_ATTR)
-        req.session.removeAttribute(STATE_EXP_ATTR)
-        req.session.removeAttribute(ORIGIN)
+        req.session.removeAttribute(AuthCodeService.STATE_ATTR)
+        req.session.removeAttribute(AuthCodeService.STATE_EXP_ATTR)
+        req.session.removeAttribute(AuthCodeService.ORIGIN)
 
         val tokens = authServerClient.authenticateAuthCode(origin, code)
         val manageRefreshToken = AppRefreshToken(0, tokens.tokenId, tokens.refreshToken)
