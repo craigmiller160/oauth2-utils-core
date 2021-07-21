@@ -16,6 +16,9 @@
  */
 package org.apache.catalina.filters;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -24,14 +27,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
-
 public abstract class CsrfPreventionFilterBase extends FilterBase {
 
     // Log must be non-static as loggers are created per class-loader and this
     // Filter may be used in multiple class loaders
-    private final Log log = LogFactory.getLog(CsrfPreventionFilterBase.class); // must not be static
+    private final Logger log = LoggerFactory.getLogger(CsrfPreventionFilterBase.class); // must not be static
 
     private String randomClass = SecureRandom.class.getName();
 
@@ -40,7 +40,7 @@ public abstract class CsrfPreventionFilterBase extends FilterBase {
     private int denyStatus = HttpServletResponse.SC_FORBIDDEN;
 
     @Override
-    protected Log getLogger() {
+    protected Logger getLogger() {
         return log;
     }
 

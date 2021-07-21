@@ -22,9 +22,9 @@ import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
-import org.apache.juli.logging.Log;
 import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.tomcat.util.res.StringManager;
+import org.slf4j.Logger;
 
 /**
  * Base class for filters that provides generic initialisation and a simple
@@ -34,7 +34,7 @@ public abstract class FilterBase implements Filter {
 
     protected static final StringManager sm = StringManager.getManager(FilterBase.class);
 
-    protected abstract Log getLogger();
+    protected abstract Logger getLogger();
 
 
     /**
