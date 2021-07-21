@@ -11,3 +11,7 @@ A generic library with utilities to help integrate apps with the sso-oauth2-serv
 ## SQL
 
 Do not forget to execute the provided SQL in the database for the consuming application.
+
+## Tomcat Filters
+
+This project uses the Apache Tomcat `RestCsrfPreventionFilter`, copied from their git repo. All credit goes to Apache Tomcat for this piece of it.
