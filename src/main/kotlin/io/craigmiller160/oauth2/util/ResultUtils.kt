@@ -8,3 +8,10 @@ fun <T,R> Result<T>.flatMap(transform: (T) -> Result<R>): Result<R> {
     }
     return this as Result<R>
 }
+
+fun <T> Result<Result<T>>.flatten(): Result<T> {
+    if (isSuccess) {
+        return getOrThrow()
+    }
+    return Result.failure(exceptionOrNull()!!)
+}
