@@ -82,7 +82,14 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with default insecure path`() {
-        TODO("Finish this")
+        `when`(req.getRequestUri())
+                .thenReturn("/oauth/authcode/login")
+        authFilterService.authenticateRequest(req)
+
+        verify(req, times(0))
+                .setAuthentication(any())
+        verify(refreshTokenService, times(0))
+                .refreshToken(any())
     }
 
     @Test
