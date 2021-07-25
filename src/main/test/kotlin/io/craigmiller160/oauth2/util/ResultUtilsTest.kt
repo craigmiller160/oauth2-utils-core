@@ -69,4 +69,34 @@ class ResultUtilsTest {
         }
     }
 
+    @Test
+    fun `recoverAndFlatten with success result`() {
+        TODO("Finish this")
+    }
+
+    @Test
+    fun `recoverAndFlatten with failed result`() {
+        TODO("Finish this")
+    }
+
+    @Test
+    fun `recoverAndFlatten where Result is already success`() {
+        TODO("Finish this")
+    }
+
+    @Test
+    fun `recoverCatchingAndFlatten with success result`() {
+        TODO("Finish this")
+    }
+
+    @Test
+    fun `recoverCatchingAndFlatten with failed result`() {
+        TODO("Finish this")
+    }
+
+    @Test
+    fun `recoverCatchingAndFlatten where Result is already success`() {
+        TODO("Finish this")
+    }
+
 }
