@@ -71,12 +71,19 @@ class ResultUtilsTest {
 
     @Test
     fun `recoverAndFlatten with success result`() {
-        TODO("Finish this")
+        val result = runCatching { throw RuntimeException("Dying") }
+                .recoverAndFlatten { Result.success("Hello World") }
+                .getOrThrow()
+        assertEquals("Hello World", result)
     }
 
     @Test
     fun `recoverAndFlatten with failed result`() {
-        TODO("Finish this")
+        assertFailsWith<IOException> {
+            runCatching { throw RuntimeException("Dying") }
+                    .recoverAndFlatten { Result.failure<Int>(IOException("IO Dying")) }
+                    .getOrThrow()
+        }
     }
 
     @Test
