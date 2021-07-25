@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory
 import java.lang.RuntimeException
 import java.text.ParseException
 
-// TODO work on chaining Result types
 class AuthenticationFilterServiceImpl(
         private val oAuth2Config: OAuth2Config,
         private val refreshTokenService: RefreshTokenService,
@@ -38,20 +37,16 @@ class AuthenticationFilterServiceImpl(
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun authenticateRequest(req: RequestWrapper) {
-        if (isUriSecured(req.getRequestUri())) {
+    override fun authenticateRequest(req: RequestWrapper): Result<Unit> {
+        return if (isUriSecured(req.getRequestUri())) {
             logger.debug("Authenticating request")
-            runCatching {
-                val token = getToken(req)
-                val claims = validateToken(token, req).getOrThrow()
-                req.setAuthentication(claims)
-            }
-                    .onFailure { ex ->
-                        logger.error("Token validation failed", ex)
-                    }
-                    .getOrThrow()
+            runCatching { getToken(req) }
+                    .flatMap { token -> validateToken(token, req) }
+                    .map { } // Turning JWTClaimsSet into Unit
+                    .onFailure { ex -> logger.error("Token validation failed", ex) }
         } else {
             logger.debug("Skipping authentication for insecure URI: ${req.getRequestUri()}")
+            return Result.success(Unit)
         }
     }
 
