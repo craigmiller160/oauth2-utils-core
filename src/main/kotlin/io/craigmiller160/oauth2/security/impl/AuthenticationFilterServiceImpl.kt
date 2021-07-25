@@ -12,14 +12,17 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.exception.InvalidTokenException
 import io.craigmiller160.oauth2.security.AuthenticationFilterService
+import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
 import io.craigmiller160.oauth2.service.RefreshTokenService
 import java.lang.RuntimeException
 import java.text.ParseException
 
+// TODO work on chaining Result types
 class AuthenticationFilterServiceImpl(
         private val oAuth2Config: OAuth2Config,
-        private val refreshTokenService: RefreshTokenService
+        private val refreshTokenService: RefreshTokenService,
+        private val cookieCreator: CookieCreator
 ) : AuthenticationFilterService {
     override fun authenticateRequest(req: RequestWrapper) {
         runCatching {
@@ -64,8 +67,10 @@ class AuthenticationFilterServiceImpl(
     private fun attemptRefresh(token: String, req: RequestWrapper): Result<JWTClaimsSet> = runCatching {
         refreshTokenService.refreshToken(token)
                 ?.let { tokenResponse ->
-                    // TODO need to set cookie
-                    validateToken(tokenResponse.accessToken, req, true).getOrThrow()
+                    val claims = validateToken(tokenResponse.accessToken, req, true).getOrThrow()
+                    val cookie = cookieCreator.createTokenCookie(oAuth2Config.cookieName, oAuth2Config.getOrDefaultCookiePath(), tokenResponse.accessToken, oAuth2Config.cookieMaxAgeSecs)
+                    req.setNewTokenCookie(cookie)
+                    claims
                 }
                 ?: throw InvalidTokenException("Token refresh failed")
     }
