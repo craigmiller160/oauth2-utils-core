@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nimbusds.jose.jwk.JWKSet
 import com.nimbusds.jwt.JWTClaimsSet
 import io.craigmiller160.oauth2.config.OAuth2Config
+import io.craigmiller160.oauth2.dto.TokenResponseDto
 import io.craigmiller160.oauth2.exception.InvalidTokenException
 import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
@@ -156,7 +157,15 @@ class AuthenticationFilterServiceImplTest {
     fun `authenticate with wrong client`() {
         `when`(req.getRequestUri())
                 .thenReturn("/something")
-        TODO("Finish this")
+        `when`(oAuthConfig.clientKey)
+                .thenReturn("ABCDEFG")
+        `when`(req.getHeaderValue("Authorization"))
+                .thenReturn("Bearer $token")
+
+        val ex = assertFailsWith<InvalidTokenException> {
+            authFilterService.authenticateRequest(req)
+        }
+        assertTrue { ex.message?.contains("""JWT "clientKey" claim has value clientKey, must be ABCDEFG""") ?: false }
     }
 
     @Test
@@ -177,23 +186,44 @@ class AuthenticationFilterServiceImplTest {
     fun `authenticate with token without bearer prefix`() {
         `when`(req.getRequestUri())
                 .thenReturn("/something")
-        TODO("Finish this")
+        `when`(req.getHeaderValue("Authorization"))
+                .thenReturn(token)
+        val ex = assertFailsWith<InvalidTokenException> {
+            authFilterService.authenticateRequest(req)
+        }
+        assertEquals("Not bearer token", ex.message)
     }
 
     @Test
     fun `authenticate with successful refresh`() {
         `when`(req.getRequestUri())
                 .thenReturn("/something")
-        TODO("Finish this")
+        val jwt = JwtUtils.createJwt(-20)
+        val token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)
+        `when`(req.getHeaderValue("Authorization"))
+                .thenReturn("Bearer $token")
+        val refreshToken = "ABCDEFG"
+        val newRefreshToken = "HIJKLMNO"
+        val newTokenId = "id2"
+
+        `when`(refreshTokenService.refreshToken(token))
+                .thenReturn(TokenResponseDto(this.token, newRefreshToken, newTokenId))
+
+        `when`(cookieCreator.createTokenCookie(cookieName, oAuthConfig.getOrDefaultCookiePath(), this.token, oAuthConfig.cookieMaxAgeSecs))
+                .thenReturn("Cookie")
+
+        authFilterService.authenticateRequest(req)
+
+        val captor = argumentCaptor<JWTClaimsSet>()
+        verify(req, times(1))
+                .setAuthentication(captor.capture())
+        assertEquals(JwtUtils.USERNAME, captor.firstValue.subject)
+        assertEquals(listOf(JwtUtils.ROLE_1, JwtUtils.ROLE_2), captor.firstValue.getStringListClaim("roles"))
+
+        verify(refreshTokenService, times(1))
+                .refreshToken(token)
+        verify(req, times(1))
+                .setNewTokenCookie("Cookie")
     }
-
-    @Test
-    fun `authenticate with failed refresh`() {
-        `when`(req.getRequestUri())
-                .thenReturn("/something")
-        TODO("Finish this")
-    }
-
-
 
 }
