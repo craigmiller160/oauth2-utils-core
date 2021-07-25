@@ -15,6 +15,7 @@ import io.craigmiller160.oauth2.security.AuthenticationFilterService
 import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
 import io.craigmiller160.oauth2.service.RefreshTokenService
+import io.craigmiller160.oauth2.util.chain
 import org.apache.shiro.util.AntPathMatcher
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -92,15 +93,20 @@ class AuthenticationFilterServiceImpl(
         }
     }
 
-    private fun attemptRefresh(token: String, req: RequestWrapper): Result<JWTClaimsSet> = runCatching {
-        refreshTokenService.refreshToken(token)
-                ?.let { tokenResponse ->
-                    val claims = validateToken(tokenResponse.accessToken, req, true).getOrThrow()
-                    val cookie = cookieCreator.createTokenCookie(oAuth2Config.cookieName, oAuth2Config.getOrDefaultCookiePath(), tokenResponse.accessToken, oAuth2Config.cookieMaxAgeSecs)
+    private fun attemptRefresh(token: String, req: RequestWrapper): Result<JWTClaimsSet> {
+        return runCatching {
+            refreshTokenService.refreshToken(token)
+                    ?: throw InvalidTokenException("Token refresh failed")
+        }
+                .chain { tokenResponse ->
+                    validateToken(tokenResponse.accessToken, req, true)
+                            .map { claims -> Pair(claims, tokenResponse.accessToken) }
+                }
+                .map { (claims, accessToken) ->
+                    val cookie = cookieCreator.createTokenCookie(oAuth2Config.cookieName, oAuth2Config.getOrDefaultCookiePath(), accessToken, oAuth2Config.cookieMaxAgeSecs)
                     req.setNewTokenCookie(cookie)
                     claims
                 }
-                ?: throw InvalidTokenException("Token refresh failed")
     }
 
     private fun getToken(req: RequestWrapper): String {
