@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nimbusds.jose.jwk.JWKSet
 import com.nimbusds.jwt.JWTClaimsSet
 import io.craigmiller160.oauth2.config.OAuth2Config
+import io.craigmiller160.oauth2.exception.InvalidTokenException
 import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
 import io.craigmiller160.oauth2.service.RefreshTokenService
@@ -22,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 import java.security.KeyPair
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 @ExtendWith(MockitoExtension::class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -54,8 +56,8 @@ class AuthenticationFilterServiceImplTest {
                 .thenReturn(JwtUtils.CLIENT_NAME)
         `when`(oAuthConfig.cookieName)
                 .thenReturn(cookieName)
-        `when`(oAuthConfig.insecurePaths)
-                .thenReturn("/other/path")
+        `when`(oAuthConfig.getInsecurePathList())
+                .thenReturn(listOf("/other/path"))
         `when`(oAuthConfig.jwkSet)
                 .thenReturn(jwkSet)
 
@@ -108,14 +110,27 @@ class AuthenticationFilterServiceImplTest {
     fun `authenticate without token`() {
         `when`(req.getRequestUri())
                 .thenReturn("/something")
-        TODO("Finish this")
+        assertFailsWith<InvalidTokenException>(message = "Token not found") {
+            authFilterService.authenticateRequest(req)
+        }
     }
 
     @Test
     fun `authenticate with valid cookie token`() {
         `when`(req.getRequestUri())
                 .thenReturn("/something")
-        TODO("Finish this")
+        `when`(req.getCookieValue(cookieName))
+                .thenReturn(token)
+
+        authFilterService.authenticateRequest(req)
+
+        val captor = argumentCaptor<JWTClaimsSet>()
+        verify(req, times(1))
+                .setAuthentication(captor.capture())
+        assertEquals(JwtUtils.USERNAME, captor.firstValue.subject)
+        assertEquals(listOf(JwtUtils.ROLE_1, JwtUtils.ROLE_2), captor.firstValue.getStringListClaim("roles"))
+        verify(refreshTokenService, times(0))
+                .refreshToken(any())
     }
 
     @Test
