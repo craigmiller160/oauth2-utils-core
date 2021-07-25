@@ -24,6 +24,7 @@ import org.mockito.quality.Strictness
 import java.security.KeyPair
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 @ExtendWith(MockitoExtension::class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -134,17 +135,21 @@ class AuthenticationFilterServiceImplTest {
     }
 
     @Test
-    fun `authenticate with authcode URI`() {
-        `when`(req.getRequestUri())
-                .thenReturn("/something")
-        TODO("Finish this")
-    }
-
-    @Test
     fun `authenticate with bad signature`() {
         `when`(req.getRequestUri())
                 .thenReturn("/something")
-        TODO("Finish this")
+        val keyPair = JwtUtils.createKeyPair()
+        val jwt = JwtUtils.createJwt()
+        val token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)
+        `when`(req.getHeaderValue("Authorization"))
+                .thenReturn("Bearer $token")
+
+        val ex = assertFailsWith<InvalidTokenException> {
+            authFilterService.authenticateRequest(req)
+        }
+        assertTrue {
+            ex.message?.contains("Invalid signature") ?: false
+        }
     }
 
     @Test
@@ -155,10 +160,17 @@ class AuthenticationFilterServiceImplTest {
     }
 
     @Test
-    fun `authenticate with expired token`() {
+    fun `authenticate with expired token and refresh failed`() {
         `when`(req.getRequestUri())
                 .thenReturn("/something")
-        TODO("Finish this")
+        val jwt = JwtUtils.createJwt(-20)
+        val token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)
+        `when`(req.getHeaderValue("Authorization"))
+                .thenReturn("Bearer $token")
+
+        assertFailsWith<InvalidTokenException>(message = "Token refresh failed") {
+            authFilterService.authenticateRequest(req)
+        }
     }
 
     @Test

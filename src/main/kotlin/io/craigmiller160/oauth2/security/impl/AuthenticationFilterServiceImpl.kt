@@ -77,16 +77,16 @@ class AuthenticationFilterServiceImpl(
         return runCatching {
             jwtProcessor.process(token, null)
         }.recoverCatching { ex ->
-            when(ex) {
-                is BadJOSEException -> {
+            when {
+                ex is BadJOSEException && ex.message == "Expired JWT" -> {
                     if (alreadyAttemptedRefresh) {
                         throw InvalidTokenException("Token validation failed: ${ex.message}", ex)
                     }
                     attemptRefresh(token, req).getOrThrow()
                 }
-                is ParseException, is JOSEException ->
+                ex is BadJOSEException || ex is ParseException || ex is JOSEException ->
                     throw InvalidTokenException("Token validation failed: ${ex.message}", ex)
-                is RuntimeException -> throw ex
+                ex is RuntimeException -> throw ex
                 else -> throw RuntimeException(ex)
             }
         }
