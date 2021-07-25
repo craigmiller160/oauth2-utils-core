@@ -9,6 +9,14 @@ fun <T,R> Result<T>.flatMap(transform: (T) -> Result<R>): Result<R> {
     return this as Result<R>
 }
 
+// TODO tests
+fun <T> Result<T>.recoverAndFlatten(transform: (Throwable) -> Result<T>): Result<T> {
+    if (isSuccess) {
+        return this
+    }
+    return transform(exceptionOrNull()!!)
+}
+
 fun <T> Result<Result<T>>.flatten(): Result<T> {
     if (isSuccess) {
         return getOrThrow()

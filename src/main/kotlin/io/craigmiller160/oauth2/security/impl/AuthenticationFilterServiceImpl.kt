@@ -16,6 +16,7 @@ import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
 import io.craigmiller160.oauth2.service.RefreshTokenService
 import io.craigmiller160.oauth2.util.flatMap
+import io.craigmiller160.oauth2.util.recoverAndFlatten
 import org.apache.shiro.util.AntPathMatcher
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -77,7 +78,7 @@ class AuthenticationFilterServiceImpl(
 
         return runCatching {
             jwtProcessor.process(token, null)
-        }.recoverCatching { ex ->
+        }.recoverAndFlatten { ex ->
             when {
                 ex is BadJOSEException && ex.message == "Expired JWT" -> {
                     if (alreadyAttemptedRefresh) {
