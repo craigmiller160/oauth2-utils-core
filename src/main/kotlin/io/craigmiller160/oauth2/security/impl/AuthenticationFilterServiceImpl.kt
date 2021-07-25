@@ -26,6 +26,11 @@ class AuthenticationFilterServiceImpl(
         private val refreshTokenService: RefreshTokenService,
         private val cookieCreator: CookieCreator
 ) : AuthenticationFilterService {
+
+    companion object {
+        private const val BEARER_PREFIX = "Bearer "
+    }
+
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     override fun authenticateRequest(req: RequestWrapper) {
@@ -87,8 +92,18 @@ class AuthenticationFilterServiceImpl(
     }
 
     private fun getToken(req: RequestWrapper): String {
-        return req.getBearerToken()
-                ?: req.getCookieToken(oAuth2Config.cookieName)
+        return getBearerToken(req)
+                ?: req.getCookieValue(oAuth2Config.cookieName)
                 ?: throw InvalidTokenException("Token not found")
+    }
+
+    private fun getBearerToken(req: RequestWrapper): String? {
+        return req.getHeaderValue("Authorization")
+                ?.let {
+                    if (!it.startsWith(BEARER_PREFIX)) {
+                        throw InvalidTokenException("Not bearer token")
+                    }
+                    it.replace(BEARER_PREFIX, "")
+                }
     }
 }
