@@ -48,7 +48,7 @@ class AuthenticationFilterServiceImpl(
                     }
                     .getOrThrow()
         } else {
-            logger.debug("Skiping authentication for insecure URI: ${req.getRequestUri()}")
+            logger.debug("Skipping authentication for insecure URI: ${req.getRequestUri()}")
         }
     }
 
