@@ -83,7 +83,7 @@ class AuthenticationFilterServiceImpl(
                     if (alreadyAttemptedRefresh) {
                         throw InvalidTokenException("Token validation failed: ${ex.message}", ex)
                     }
-                    attemptRefresh(token, req).getOrThrow() // TODO refactor to use flatten
+                    attemptRefresh(token, req)
                 }
                 ex is BadJOSEException || ex is ParseException || ex is JOSEException ->
                     throw InvalidTokenException("Token validation failed: ${ex.message}", ex)
@@ -91,6 +91,7 @@ class AuthenticationFilterServiceImpl(
                 else -> throw RuntimeException(ex)
             }
         }
+                .flatten()
     }
 
     private fun attemptRefresh(token: String, req: RequestWrapper): Result<JWTClaimsSet> {
