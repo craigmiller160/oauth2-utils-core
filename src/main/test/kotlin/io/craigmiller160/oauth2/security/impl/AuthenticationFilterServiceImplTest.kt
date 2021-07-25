@@ -94,51 +94,76 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with configured insecure path`() {
-        TODO("Finish this")
+        `when`(req.getRequestUri())
+                .thenReturn("/other/path")
+        authFilterService.authenticateRequest(req)
+
+        verify(req, times(0))
+                .setAuthentication(any())
+        verify(refreshTokenService, times(0))
+                .refreshToken(any())
     }
 
     @Test
     fun `authenticate without token`() {
+        `when`(req.getRequestUri())
+                .thenReturn("/something")
         TODO("Finish this")
     }
 
     @Test
     fun `authenticate with valid cookie token`() {
+        `when`(req.getRequestUri())
+                .thenReturn("/something")
         TODO("Finish this")
     }
 
     @Test
     fun `authenticate with authcode URI`() {
+        `when`(req.getRequestUri())
+                .thenReturn("/something")
         TODO("Finish this")
     }
 
     @Test
     fun `authenticate with bad signature`() {
+        `when`(req.getRequestUri())
+                .thenReturn("/something")
         TODO("Finish this")
     }
 
     @Test
     fun `authenticate with wrong client`() {
+        `when`(req.getRequestUri())
+                .thenReturn("/something")
         TODO("Finish this")
     }
 
     @Test
     fun `authenticate with expired token`() {
+        `when`(req.getRequestUri())
+                .thenReturn("/something")
         TODO("Finish this")
     }
 
     @Test
     fun `authenticate with token without bearer prefix`() {
+        `when`(req.getRequestUri())
+                .thenReturn("/something")
         TODO("Finish this")
     }
 
     @Test
     fun `authenticate with successful refresh`() {
+        `when`(req.getRequestUri())
+                .thenReturn("/something")
         TODO("Finish this")
     }
 
     @Test
     fun `authenticate with failed refresh`() {
+        `when`(req.getRequestUri())
+                .thenReturn("/something")
         TODO("Finish this")
     }
 
