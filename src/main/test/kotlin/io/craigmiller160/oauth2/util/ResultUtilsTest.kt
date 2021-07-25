@@ -54,17 +54,19 @@ class ResultUtilsTest {
 
     @Test
     fun `flatten a Result with both levels successful`() {
-        TODO("Finish this")
+        val result = Result.success(Result.success("Hello World"))
+                .flatten()
+                .getOrThrow()
+        assertEquals("Hello World", result)
     }
 
     @Test
     fun `flatten a Result with a successful outer level and failed inner level`() {
-        TODO("Finish this")
-    }
-
-    @Test
-    fun `flatten a Result with a failed outer level`() {
-        TODO("Finish this")
+        assertFailsWith<IOException> {
+            Result.success(Result.failure<String>(IOException("IO Dying")))
+                    .flatten()
+                    .getOrThrow()
+        }
     }
 
 }
