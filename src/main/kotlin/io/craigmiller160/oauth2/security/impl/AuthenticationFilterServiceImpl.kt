@@ -15,7 +15,7 @@ import io.craigmiller160.oauth2.security.AuthenticationFilterService
 import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
 import io.craigmiller160.oauth2.service.RefreshTokenService
-import io.craigmiller160.oauth2.util.chain
+import io.craigmiller160.oauth2.util.flatMap
 import org.apache.shiro.util.AntPathMatcher
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -98,7 +98,7 @@ class AuthenticationFilterServiceImpl(
             refreshTokenService.refreshToken(token)
                     ?: throw InvalidTokenException("Token refresh failed")
         }
-                .chain { tokenResponse ->
+                .flatMap { tokenResponse ->
                     validateToken(tokenResponse.accessToken, req, true)
                             .map { claims -> Pair(claims, tokenResponse.accessToken) }
                 }

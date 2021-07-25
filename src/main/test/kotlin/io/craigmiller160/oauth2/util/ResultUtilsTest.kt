@@ -10,44 +10,44 @@ import kotlin.test.assertFailsWith
 class ResultUtilsTest {
 
     @Test
-    fun `chain a successful transform onto a successful Result`() {
+    fun `flatMap a successful transform onto a successful Result`() {
         val result = runCatching {
             "Hello World"
         }
-                .chain { Result.success(123) }
+                .flatMap { Result.success(123) }
                 .getOrThrow()
         assertEquals(123, result)
     }
 
     @Test
-    fun `chain a failed transform onto a successful Result`() {
+    fun `flatMap a failed transform onto a successful Result`() {
         assertFailsWith<IOException> {
             runCatching {
                 "Hello World"
             }
-                    .chain { Result.failure<Int>(IOException("IO Dying")) }
+                    .flatMap { Result.failure<Int>(IOException("IO Dying")) }
                     .getOrThrow()
         }
     }
 
     @Test
-    fun `chain a successful transform onto a failed Result`() {
+    fun `flatMap a successful transform onto a failed Result`() {
         assertFailsWith<RuntimeException> {
             runCatching {
                 throw RuntimeException("Dying")
             }
-                    .chain { Result.success(123) }
+                    .flatMap { Result.success(123) }
                     .getOrThrow()
         }
     }
 
     @Test
-    fun `chain a failed transform onto a failed Result`() {
+    fun `flatMap a failed transform onto a failed Result`() {
         assertFailsWith<RuntimeException> {
             runCatching {
                 throw RuntimeException("Dying")
             }
-                    .chain { Result.failure<Int>(IOException("IO Dying")) }
+                    .flatMap { Result.failure<Int>(IOException("IO Dying")) }
                     .getOrThrow()
         }
     }
