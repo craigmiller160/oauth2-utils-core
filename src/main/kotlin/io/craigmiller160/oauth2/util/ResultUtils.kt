@@ -17,7 +17,12 @@ fun <T> Result<T>.recoverAndFlatten(transform: (Throwable) -> Result<T>): Result
 }
 
 fun <T> Result<T>.recoverCatchingAndFlatten(transform: (Throwable) -> Result<T>): Result<T> {
-    TODO("Finish this")
+    if (isSuccess) {
+        return this
+    }
+    return runCatching {
+        transform(exceptionOrNull()!!)
+    }.flatten()
 }
 
 fun <T> Result<Result<T>>.flatten(): Result<T> {
