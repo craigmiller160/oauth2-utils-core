@@ -69,4 +69,9 @@ class ResultUtilsTest {
         }
     }
 
+    @Test
+    fun `flatten a Result with a failed outer level`() {
+        TODO("Finish this")
+    }
+
 }
