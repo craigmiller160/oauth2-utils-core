@@ -42,7 +42,7 @@ class AuthenticationFilterServiceImpl(
             logger.debug("Authenticating request")
             runCatching { getToken(req) }
                     .flatMap { token -> validateToken(token, req) }
-                    .map { } // Turning JWTClaimsSet into Unit
+                    .map { claims -> req.setAuthentication(claims) }
                     .onFailure { ex -> logger.error("Token validation failed", ex) }
         } else {
             logger.debug("Skipping authentication for insecure URI: ${req.getRequestUri()}")

@@ -73,7 +73,7 @@ class AuthenticationFilterServiceImplTest {
                 .thenReturn("/something")
         `when`(req.getHeaderValue("Authorization"))
                 .thenReturn("Bearer $token")
-        authFilterService.authenticateRequest(req)
+        authFilterService.authenticateRequest(req).getOrThrow()
 
         val captor = argumentCaptor<JWTClaimsSet>()
         verify(req, times(1))
