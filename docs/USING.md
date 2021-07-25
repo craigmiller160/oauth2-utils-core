@@ -2,48 +2,9 @@
 
 Once fully integrated and configured, the consuming application will expose several important APIs to allow the authentication to take place. This will detail how they work.
 
-## Handling CSRF Tokens
+## Add CSRF Protection
 
-This library will enforce CSRF protection across the application. This means all modifying calls (GET, POST, PUT, etc) will require a CSRF synchronizer token to be provided. Here is how to work with this:
-
-### Step 1 - Get the CSRF Token
-
-The current, valid CSRF token for the user session can be acquired at any time by making an HTTP GET request with the CSRF Fetch header. The token will be returned in the CSRF response header, and can then be stored. The token will be returned on both a success and failed call.
-
-When the user first reaches the site, be sure to make an HTTP GET request like demonstrated below and store the CSRF token in memory. It should be stored in memory, and not `localStorage` or `sessionStorage` for maximum security.
-
-```
-axios.get('/oauth/user', {
-    headers: {
-        'x-csrf-token': 'fetch'
-    }
-})
-    .then((res) => {
-        // CSRF token is at res.headers['x-csrf-token']
-    })
-    .catch((ex) => {
-        // CSRF token is at ex.response.headers['x-csrf-token']
-    });
-```
-
-### Step 2 - Send the CSRF Token in All Modifying Requests
-
-After this, all modifying requests need to provide the CSRF token in the CSRF header. This can be easily done using an `axios` interceptor:
-
-```
-export const addCsrfTokenInterceptor = (config) => {
-    const csrfToken = getCsrfTokenFromMemory();
-    if (csrfToken && config.method !== 'get') {
-        config.headers = {
-            ...config.headers,
-            ['x-csrf-token']: csrfToken
-        };
-    }
-    return config;
-};
-
-axios.interceptors.request.use(addCsrfTokenInterceptor)
-```
+It is strongly recommended to add CSRF protection to the application for security purposes. While all cookies are `same-site=strict`, CSRF provides an extra layer of protection on top of this.
 
 ## Auth Code APIs
 
