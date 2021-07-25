@@ -52,4 +52,19 @@ class ResultUtilsTest {
         }
     }
 
+    @Test
+    fun `flatten a Result with both levels successful`() {
+        TODO("Finish this")
+    }
+
+    @Test
+    fun `flatten a Result with a successful outer level and failed inner level`() {
+        TODO("Finish this")
+    }
+
+    @Test
+    fun `flatten a Result with a failed outer level`() {
+        TODO("Finish this")
+    }
+
 }
