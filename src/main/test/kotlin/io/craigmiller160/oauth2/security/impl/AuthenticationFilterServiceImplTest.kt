@@ -113,7 +113,7 @@ class AuthenticationFilterServiceImplTest {
         `when`(req.getRequestUri())
                 .thenReturn("/something")
         assertFailsWith<InvalidTokenException>(message = "Token not found") {
-            authFilterService.authenticateRequest(req)
+            authFilterService.authenticateRequest(req).getOrThrow()
         }
     }
 
@@ -146,7 +146,7 @@ class AuthenticationFilterServiceImplTest {
                 .thenReturn("Bearer $token")
 
         val ex = assertFailsWith<InvalidTokenException> {
-            authFilterService.authenticateRequest(req)
+            authFilterService.authenticateRequest(req).getOrThrow()
         }
         assertTrue {
             ex.message?.contains("Invalid signature") ?: false
@@ -163,7 +163,7 @@ class AuthenticationFilterServiceImplTest {
                 .thenReturn("Bearer $token")
 
         val ex = assertFailsWith<InvalidTokenException> {
-            authFilterService.authenticateRequest(req)
+            authFilterService.authenticateRequest(req).getOrThrow()
         }
         assertTrue { ex.message?.contains("""JWT "clientKey" claim has value clientKey, must be ABCDEFG""") ?: false }
     }
@@ -178,7 +178,7 @@ class AuthenticationFilterServiceImplTest {
                 .thenReturn("Bearer $token")
 
         assertFailsWith<InvalidTokenException>(message = "Token refresh failed") {
-            authFilterService.authenticateRequest(req)
+            authFilterService.authenticateRequest(req).getOrThrow()
         }
     }
 
@@ -189,7 +189,7 @@ class AuthenticationFilterServiceImplTest {
         `when`(req.getHeaderValue("Authorization"))
                 .thenReturn(token)
         val ex = assertFailsWith<InvalidTokenException> {
-            authFilterService.authenticateRequest(req)
+            authFilterService.authenticateRequest(req).getOrThrow()
         }
         assertEquals("Not bearer token", ex.message)
     }
