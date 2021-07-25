@@ -7,4 +7,5 @@ interface RequestWrapper {
     fun getHeaderValue(headerName: String): String?
     fun setAuthentication(claims: JWTClaimsSet)
     fun setNewTokenCookie(cookie: String)
+    fun getRequestUri(): String
 }

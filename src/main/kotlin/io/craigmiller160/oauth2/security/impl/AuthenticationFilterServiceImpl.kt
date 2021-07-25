@@ -15,6 +15,7 @@ import io.craigmiller160.oauth2.security.AuthenticationFilterService
 import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
 import io.craigmiller160.oauth2.service.RefreshTokenService
+import org.apache.shiro.util.AntPathMatcher
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.lang.RuntimeException
@@ -29,21 +30,32 @@ class AuthenticationFilterServiceImpl(
 
     companion object {
         private const val BEARER_PREFIX = "Bearer "
+        private val DEFAULT_INSECURE_URI_PATTERNS = listOf("/oauth/authcode/**")
     }
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     override fun authenticateRequest(req: RequestWrapper) {
-        logger.debug("Authenticating request")
-        runCatching {
-            val token = getToken(req)
-            val claims = validateToken(token, req).getOrThrow()
-            req.setAuthentication(claims)
+        if (isUriSecured(req.getRequestUri())) {
+            logger.debug("Authenticating request")
+            runCatching {
+                val token = getToken(req)
+                val claims = validateToken(token, req).getOrThrow()
+                req.setAuthentication(claims)
+            }
+                    .onFailure { ex ->
+                        logger.error("Token validation failed", ex)
+                    }
+                    .getOrThrow()
+        } else {
+            logger.debug("Skiping authentication for insecure URI: ${req.getRequestUri()}")
         }
-                .onFailure { ex ->
-                    logger.error("Token validation failed", ex)
-                }
-                .getOrThrow()
+    }
+
+    private fun isUriSecured(requestUri: String): Boolean {
+        val antMatcher = AntPathMatcher()
+        return !DEFAULT_INSECURE_URI_PATTERNS.any { antMatcher.match(it, requestUri) }
+                && !oAuth2Config.getInsecurePathList().any { antMatcher.match(it, requestUri) }
     }
 
     private fun validateToken(token: String, req: RequestWrapper, alreadyAttemptedRefresh: Boolean = false): Result<JWTClaimsSet> {

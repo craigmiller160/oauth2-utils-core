@@ -31,9 +31,15 @@
         <jackson.version>2.12.4</jackson.version>
         <h2.version>1.4.200</h2.version>
         <javax.servlet.version>4.0.1</javax.servlet.version>
+        <shiro.version>1.7.1</shiro.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>${shiro.version}</version>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
