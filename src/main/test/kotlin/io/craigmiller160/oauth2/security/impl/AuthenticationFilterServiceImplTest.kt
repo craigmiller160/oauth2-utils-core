@@ -1,8 +1,10 @@
 package io.craigmiller160.oauth2.security.impl
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nimbusds.jose.jwk.JWKSet
+import com.nimbusds.jwt.JWTClaimsSet
 import io.craigmiller160.oauth2.config.OAuth2Config
-import io.craigmiller160.oauth2.security.AuthenticationFilterService
 import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
 import io.craigmiller160.oauth2.service.RefreshTokenService
@@ -12,12 +14,14 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 import java.security.KeyPair
+import kotlin.test.assertEquals
 
 @ExtendWith(MockitoExtension::class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -66,6 +70,14 @@ class AuthenticationFilterServiceImplTest {
         `when`(req.getHeaderValue("Authorization"))
                 .thenReturn("Bearer $token")
         authFilterService.authenticateRequest(req)
+
+        val captor = argumentCaptor<JWTClaimsSet>()
+        verify(req, times(1))
+                .setAuthentication(captor.capture())
+        assertEquals(JwtUtils.USERNAME, captor.firstValue.subject)
+        assertEquals(listOf(JwtUtils.ROLE_1, JwtUtils.ROLE_2), captor.firstValue.getStringListClaim("roles"))
+        verify(refreshTokenService, times(0))
+                .refreshToken(any())
     }
 
     @Test

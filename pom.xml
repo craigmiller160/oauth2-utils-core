@@ -32,9 +32,16 @@
         <h2.version>1.4.200</h2.version>
         <javax.servlet.version>4.0.1</javax.servlet.version>
         <shiro.version>1.7.1</shiro.version>
+        <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.nhaarman.mockitokotlin2</groupId>
+            <artifactId>mockito-kotlin</artifactId>
+            <version>${mockito.kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
