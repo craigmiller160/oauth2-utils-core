@@ -6,6 +6,7 @@ import java.lang.RuntimeException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+// TODO move into library
 class ResultUtilsTest {
 
     @Test
