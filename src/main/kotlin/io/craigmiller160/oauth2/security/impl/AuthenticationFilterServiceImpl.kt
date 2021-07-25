@@ -30,7 +30,7 @@ class AuthenticationFilterServiceImpl(
 
     companion object {
         private const val BEARER_PREFIX = "Bearer "
-        private val DEFAULT_INSECURE_URI_PATTERNS = listOf("/oauth/authcode/**")
+        private val DEFAULT_INSECURE_URI_PATTERNS = listOf("/oauth/authcode/**", "logout")
     }
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)

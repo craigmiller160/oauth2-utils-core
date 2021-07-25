@@ -3,6 +3,7 @@ package io.craigmiller160.oauth2.security.impl
 import com.nimbusds.jose.jwk.JWKSet
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.security.AuthenticationFilterService
+import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
 import io.craigmiller160.oauth2.service.RefreshTokenService
 import io.craigmiller160.oauth2.testutils.JwtUtils
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.junit.jupiter.MockitoSettings
@@ -21,7 +23,6 @@ import java.security.KeyPair
 @MockitoSettings(strictness = Strictness.LENIENT)
 class AuthenticationFilterServiceImplTest {
 
-    private lateinit var oAuthConfig: OAuth2Config
     private lateinit var jwkSet: JWKSet
     private lateinit var keyPair: KeyPair
     private lateinit var token: String
@@ -32,10 +33,12 @@ class AuthenticationFilterServiceImplTest {
     @Mock
     private lateinit var req: RequestWrapper
     @Mock
-    private lateinit var cookieConfig: OAuth2Config
+    private lateinit var cookieCreator: CookieCreator
+    @Mock
+    private lateinit var oAuthConfig: OAuth2Config
 
     @InjectMocks
-    private lateinit var authFilterService: AuthenticationFilterService
+    private lateinit var authFilterService: AuthenticationFilterServiceImpl
 
     @BeforeEach
     fun setup() {
@@ -58,7 +61,11 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with valid bearer token`() {
-        TODO("Finish this")
+        `when`(req.getRequestUri())
+                .thenReturn("/something")
+        `when`(req.getHeaderValue("Authorization"))
+                .thenReturn("Bearer $token")
+        authFilterService.authenticateRequest(req)
     }
 
     @Test
