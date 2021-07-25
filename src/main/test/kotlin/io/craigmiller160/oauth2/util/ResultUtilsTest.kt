@@ -88,22 +88,44 @@ class ResultUtilsTest {
 
     @Test
     fun `recoverAndFlatten where Result is already success`() {
-        TODO("Finish this")
+        val result = Result.success("Success")
+                .recoverAndFlatten { Result.success("Hello World") }
+                .getOrThrow()
+        assertEquals("Success", result)
     }
 
     @Test
     fun `recoverCatchingAndFlatten with success result`() {
-        TODO("Finish this")
+        val result = runCatching { throw RuntimeException("Dying") }
+                .recoverCatchingAndFlatten { Result.success("Hello World") }
+                .getOrThrow()
+        assertEquals("Hello World", result)
     }
 
     @Test
     fun `recoverCatchingAndFlatten with failed result`() {
-        TODO("Finish this")
+        assertFailsWith<IOException> {
+            runCatching { throw RuntimeException("Dying") }
+                    .recoverCatchingAndFlatten { Result.failure<Int>(IOException("IO Dying")) }
+                    .getOrThrow()
+        }
+    }
+
+    @Test
+    fun `recoverCatchingAndFlatten that catches exception`() {
+        assertFailsWith<IOException> {
+            runCatching { throw RuntimeException("Dying") }
+                    .recoverCatchingAndFlatten { throw IOException("IO Dying") }
+                    .getOrThrow()
+        }
     }
 
     @Test
     fun `recoverCatchingAndFlatten where Result is already success`() {
-        TODO("Finish this")
+        val result = Result.success("Success")
+                .recoverCatchingAndFlatten { Result.success("Hello World") }
+                .getOrThrow()
+        assertEquals("Success", result)
     }
 
 }
