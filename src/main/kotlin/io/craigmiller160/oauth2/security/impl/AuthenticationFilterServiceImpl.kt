@@ -15,6 +15,8 @@ import io.craigmiller160.oauth2.security.AuthenticationFilterService
 import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
 import io.craigmiller160.oauth2.service.RefreshTokenService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.lang.RuntimeException
 import java.text.ParseException
 
@@ -24,10 +26,19 @@ class AuthenticationFilterServiceImpl(
         private val refreshTokenService: RefreshTokenService,
         private val cookieCreator: CookieCreator
 ) : AuthenticationFilterService {
+    private val logger: Logger = LoggerFactory.getLogger(javaClass)
+
     override fun authenticateRequest(req: RequestWrapper) {
+        logger.debug("Authenticating request")
         runCatching {
             val token = getToken(req)
+            val claims = validateToken(token, req).getOrThrow()
+            req.setAuthentication(claims)
         }
+                .onFailure { ex ->
+                    logger.error("Token validation failed", ex)
+                }
+                .getOrThrow()
     }
 
     private fun validateToken(token: String, req: RequestWrapper, alreadyAttemptedRefresh: Boolean = false): Result<JWTClaimsSet> {
