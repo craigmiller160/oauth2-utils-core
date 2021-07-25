@@ -91,7 +91,6 @@ class AuthenticationFilterServiceImpl(
                 else -> throw RuntimeException(ex)
             }
         }
-                .flatten()
     }
 
     private fun attemptRefresh(token: String, req: RequestWrapper): Result<JWTClaimsSet> {

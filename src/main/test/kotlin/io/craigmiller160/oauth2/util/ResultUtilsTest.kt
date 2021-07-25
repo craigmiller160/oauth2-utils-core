@@ -74,4 +74,9 @@ class ResultUtilsTest {
         TODO("Finish this")
     }
 
+    @Test
+    fun `flatten a single-level Result`() {
+        TODO("Finish this")
+    }
+
 }
