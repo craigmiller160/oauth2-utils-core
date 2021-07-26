@@ -9,15 +9,14 @@ import com.nimbusds.jose.proc.SecurityContext
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier
 import com.nimbusds.jwt.proc.DefaultJWTProcessor
+import io.craigmiller160.kotlin.result.flatMap
+import io.craigmiller160.kotlin.result.flatRecoverCatching
 import io.craigmiller160.oauth2.config.OAuth2Config
 import io.craigmiller160.oauth2.exception.InvalidTokenException
 import io.craigmiller160.oauth2.security.AuthenticationFilterService
 import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
 import io.craigmiller160.oauth2.service.RefreshTokenService
-import io.craigmiller160.oauth2.util.flatMap
-import io.craigmiller160.oauth2.util.recoverAndFlatten
-import io.craigmiller160.oauth2.util.recoverCatchingAndFlatten
 import org.apache.shiro.util.AntPathMatcher
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -74,7 +73,7 @@ class AuthenticationFilterServiceImpl(
 
         return runCatching {
             jwtProcessor.process(token, null)
-        }.recoverCatchingAndFlatten { ex ->
+        }.flatRecoverCatching { ex ->
             when {
                 ex is BadJOSEException && ex.message == "Expired JWT" -> {
                     if (alreadyAttemptedRefresh) {
