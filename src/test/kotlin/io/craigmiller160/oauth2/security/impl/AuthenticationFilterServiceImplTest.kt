@@ -69,7 +69,7 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with valid bearer token`() {
-        `when`(req.getRequestUri())
+        `when`(req.requestUri)
                 .thenReturn("/something")
         `when`(req.getHeaderValue("Authorization"))
                 .thenReturn("Bearer $token")
@@ -86,7 +86,7 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with default insecure path`() {
-        `when`(req.getRequestUri())
+        `when`(req.requestUri)
                 .thenReturn("/oauth/authcode/login")
         authFilterService.authenticateRequest(req)
 
@@ -98,7 +98,7 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with configured insecure path`() {
-        `when`(req.getRequestUri())
+        `when`(req.requestUri)
                 .thenReturn("/other/path")
         authFilterService.authenticateRequest(req)
 
@@ -110,7 +110,7 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate without token`() {
-        `when`(req.getRequestUri())
+        `when`(req.requestUri)
                 .thenReturn("/something")
         assertFailsWith<InvalidTokenException>(message = "Token not found") {
             authFilterService.authenticateRequest(req).getOrThrow()
@@ -119,7 +119,7 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with valid cookie token`() {
-        `when`(req.getRequestUri())
+        `when`(req.requestUri)
                 .thenReturn("/something")
         `when`(req.getCookieValue(cookieName))
                 .thenReturn(token)
@@ -137,7 +137,7 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with bad signature`() {
-        `when`(req.getRequestUri())
+        `when`(req.requestUri)
                 .thenReturn("/something")
         val keyPair = JwtUtils.createKeyPair()
         val jwt = JwtUtils.createJwt()
@@ -155,7 +155,7 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with wrong client`() {
-        `when`(req.getRequestUri())
+        `when`(req.requestUri)
                 .thenReturn("/something")
         `when`(oAuthConfig.clientKey)
                 .thenReturn("ABCDEFG")
@@ -170,7 +170,7 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with expired token and refresh failed`() {
-        `when`(req.getRequestUri())
+        `when`(req.requestUri)
                 .thenReturn("/something")
         val jwt = JwtUtils.createJwt(-20)
         val token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)
@@ -184,7 +184,7 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with token without bearer prefix`() {
-        `when`(req.getRequestUri())
+        `when`(req.requestUri)
                 .thenReturn("/something")
         `when`(req.getHeaderValue("Authorization"))
                 .thenReturn(token)
@@ -196,7 +196,7 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with successful refresh`() {
-        `when`(req.getRequestUri())
+        `when`(req.requestUri)
                 .thenReturn("/something")
         val jwt = JwtUtils.createJwt(-20)
         val token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)

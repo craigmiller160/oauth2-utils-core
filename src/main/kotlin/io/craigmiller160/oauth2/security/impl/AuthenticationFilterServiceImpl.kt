@@ -40,14 +40,14 @@ class AuthenticationFilterServiceImpl(
             DEFAULT_INSECURE_URI_PATTERNS + oAuth2Config.getInsecurePathList()
 
     override fun authenticateRequest(req: RequestWrapper): Result<Unit> {
-        return if (isUriSecured(req.getRequestUri())) {
+        return if (isUriSecured(req.requestUri)) {
             logger.debug("Authenticating request")
             runCatching { getToken(req) }
                     .flatMap { token -> validateToken(token, req) }
                     .map { claims -> req.setAuthentication(claims) }
                     .onFailure { ex -> logger.error("Token validation failed", ex) }
         } else {
-            logger.debug("Skipping authentication for insecure URI: ${req.getRequestUri()}")
+            logger.debug("Skipping authentication for insecure URI: ${req.requestUri}")
             return Result.success(Unit)
         }
     }
