@@ -36,6 +36,9 @@ class AuthenticationFilterServiceImpl(
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
+    override fun getInsecurePathPatterns(): List<String> =
+            DEFAULT_INSECURE_URI_PATTERNS + oAuth2Config.getInsecurePathList()
+
     override fun authenticateRequest(req: RequestWrapper): Result<Unit> {
         return if (isUriSecured(req.getRequestUri())) {
             logger.debug("Authenticating request")
