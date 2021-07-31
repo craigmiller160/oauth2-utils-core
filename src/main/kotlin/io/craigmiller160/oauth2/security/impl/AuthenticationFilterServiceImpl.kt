@@ -41,7 +41,7 @@ class AuthenticationFilterServiceImpl(
 
     override fun authenticateRequest(req: RequestWrapper): Result<Unit> {
         return if (isUriSecured(req.requestUri)) {
-            logger.debug("Authenticating request")
+            logger.debug("Authenticating request: ${req.requestUri}")
             runCatching { getToken(req) }
                     .flatMap { token -> validateToken(token, req) }
                     .map { claims -> req.setAuthentication(claims) }
