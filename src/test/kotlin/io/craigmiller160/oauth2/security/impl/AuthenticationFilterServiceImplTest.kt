@@ -1,11 +1,9 @@
 package io.craigmiller160.oauth2.security.impl
 
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nimbusds.jose.jwk.JWKSet
 import com.nimbusds.jwt.JWTClaimsSet
 import io.craigmiller160.oauth2.config.OAuth2Config
-import io.craigmiller160.oauth2.dto.TokenResponseDto
 import io.craigmiller160.oauth2.exception.InvalidTokenException
 import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
@@ -67,9 +65,15 @@ class AuthenticationFilterServiceImplTest {
         token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)
     }
 
-    private fun getTokenHeader(headerName: String): String? =
+    private fun getTokenHeader(headerName: String, providedToken: String = this.token): String? =
             when (headerName) {
-                "Authorization" -> "Bearer $token"
+                "Authorization" -> "Bearer $providedToken"
+                else -> null
+            }
+
+    private fun getTokenCookie(cookieName: String): String? =
+            when (cookieName) {
+                this.cookieName -> token
                 else -> null
             }
 
@@ -97,107 +101,150 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with default insecure path`() {
-//        `when`(req.requestUri)
-//                .thenReturn("/oauth/authcode/login")
-//        authFilterService.authenticateRequest(req)
-//
-//        verify(req, times(0))
-//                .setAuthentication(any())
-//        verify(refreshTokenService, times(0))
-//                .refreshToken(any())
-        TODO("Finish this")
+        var claims: JWTClaimsSet? = null
+        var cookie: String? = null
+        val req = RequestWrapper(
+                requestUri = "/oauth/authcode/login",
+                getCookieValue = {null},
+                getHeaderValue = {null},
+                setAuthentication = { claims = it },
+                setNewTokenCookie = { cookie = it }
+        )
+        authFilterService.authenticateRequest(req).getOrThrow()
+        assertNull(claims)
+        assertNull(cookie)
+
+        verify(refreshTokenService, times(0))
+                .refreshToken(any())
     }
 
     @Test
     fun `authenticate with configured insecure path`() {
-//        `when`(req.requestUri)
-//                .thenReturn("/other/path")
-//        authFilterService.authenticateRequest(req)
-//
-//        verify(req, times(0))
-//                .setAuthentication(any())
-//        verify(refreshTokenService, times(0))
-//                .refreshToken(any())
-        TODO("Finish this")
+        var claims: JWTClaimsSet? = null
+        var cookie: String? = null
+        val req = RequestWrapper(
+                requestUri = "/other/path",
+                getCookieValue = {null},
+                getHeaderValue = {null},
+                setAuthentication = { claims = it },
+                setNewTokenCookie = { cookie = it }
+        )
+        authFilterService.authenticateRequest(req).getOrThrow()
+
+        assertNull(claims)
+        assertNull(cookie)
+
+        verify(refreshTokenService, times(0))
+                .refreshToken(any())
     }
 
     @Test
     fun `authenticate without token`() {
-//        `when`(req.requestUri)
-//                .thenReturn("/something")
-//        assertFailsWith<InvalidTokenException>(message = "Token not found") {
-//            authFilterService.authenticateRequest(req).getOrThrow()
-//        }
-        TODO("Finish this")
+        var claims: JWTClaimsSet? = null
+        var cookie: String? = null
+        val req = RequestWrapper(
+                requestUri = "/something",
+                getCookieValue = {null},
+                getHeaderValue = {null},
+                setAuthentication = { claims = it },
+                setNewTokenCookie = { cookie = it }
+        )
+        assertFailsWith<InvalidTokenException>(message = "Token not found") {
+            authFilterService.authenticateRequest(req).getOrThrow()
+        }
     }
 
     @Test
     fun `authenticate with valid cookie token`() {
-//        `when`(req.requestUri)
-//                .thenReturn("/something")
-//        `when`(req.getCookieValue(cookieName))
-//                .thenReturn(token)
-//
-//        authFilterService.authenticateRequest(req)
-//
-//        val captor = argumentCaptor<JWTClaimsSet>()
-//        verify(req, times(1))
-//                .setAuthentication(captor.capture())
-//        assertEquals(JwtUtils.USERNAME, captor.firstValue.subject)
-//        assertEquals(listOf(JwtUtils.ROLE_1, JwtUtils.ROLE_2), captor.firstValue.getStringListClaim("roles"))
-//        verify(refreshTokenService, times(0))
-//                .refreshToken(any())
-        TODO("Finish this")
+        var claims: JWTClaimsSet? = null
+        var cookie: String? = null
+        val req = RequestWrapper(
+                requestUri = "/something",
+                getCookieValue = this::getTokenCookie,
+                getHeaderValue = {null},
+                setAuthentication = { claims = it },
+                setNewTokenCookie = { cookie = it }
+        )
+
+        authFilterService.authenticateRequest(req).getOrThrow()
+
+        assertNotNull(claims)
+        assertNull(cookie)
+
+        assertEquals(JwtUtils.USERNAME, claims?.subject)
+        assertEquals(listOf(JwtUtils.ROLE_1, JwtUtils.ROLE_2), claims?.getStringListClaim("roles"))
+        verify(refreshTokenService, times(0))
+                .refreshToken(any())
     }
 
     @Test
     fun `authenticate with bad signature`() {
-//        `when`(req.requestUri)
-//                .thenReturn("/something")
-//        val keyPair = JwtUtils.createKeyPair()
-//        val jwt = JwtUtils.createJwt()
-//        val token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)
-//        `when`(req.getHeaderValue("Authorization"))
-//                .thenReturn("Bearer $token")
-//
-//        val ex = assertFailsWith<InvalidTokenException> {
-//            authFilterService.authenticateRequest(req).getOrThrow()
-//        }
-//        assertTrue {
-//            ex.message?.contains("Invalid signature") ?: false
-//        }
-        TODO("Finish this")
+        val keyPair = JwtUtils.createKeyPair()
+        val jwt = JwtUtils.createJwt()
+        val token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)
+
+        var claims: JWTClaimsSet? = null
+        var cookie: String? = null
+        val req = RequestWrapper(
+                requestUri = "/something",
+                getCookieValue = this::getTokenCookie,
+                getHeaderValue = { name -> this.getTokenHeader(name, token) },
+                setAuthentication = { claims = it },
+                setNewTokenCookie = { cookie = it }
+        )
+
+        val ex = assertFailsWith<InvalidTokenException> {
+            authFilterService.authenticateRequest(req).getOrThrow()
+        }
+        assertTrue {
+            ex.message?.contains("Invalid signature") ?: false
+        }
+
+        assertNull(claims)
+        assertNull(cookie)
     }
 
     @Test
     fun `authenticate with wrong client`() {
-//        `when`(req.requestUri)
-//                .thenReturn("/something")
-//        `when`(oAuthConfig.clientKey)
-//                .thenReturn("ABCDEFG")
-//        `when`(req.getHeaderValue("Authorization"))
-//                .thenReturn("Bearer $token")
-//
-//        val ex = assertFailsWith<InvalidTokenException> {
-//            authFilterService.authenticateRequest(req).getOrThrow()
-//        }
-//        assertTrue { ex.message?.contains("""JWT "clientKey" claim has value clientKey, must be ABCDEFG""") ?: false }
-        TODO("Finish this")
+        var claims: JWTClaimsSet? = null
+        var cookie: String? = null
+        val req = RequestWrapper(
+                requestUri = "/something",
+                getCookieValue = {null},
+                getHeaderValue = this::getTokenHeader,
+                setAuthentication = { claims = it },
+                setNewTokenCookie = { cookie = it }
+        )
+        `when`(oAuthConfig.clientKey)
+                .thenReturn("ABCDEFG")
+
+        val ex = assertFailsWith<InvalidTokenException> {
+            authFilterService.authenticateRequest(req).getOrThrow()
+        }
+        assertTrue { ex.message?.contains("""JWT "clientKey" claim has value clientKey, must be ABCDEFG""") ?: false }
+        assertNull(claims)
+        assertNull(cookie)
     }
 
     @Test
     fun `authenticate with expired token and refresh failed`() {
-//        `when`(req.requestUri)
-//                .thenReturn("/something")
-//        val jwt = JwtUtils.createJwt(-20)
-//        val token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)
-//        `when`(req.getHeaderValue("Authorization"))
-//                .thenReturn("Bearer $token")
-//
-//        assertFailsWith<InvalidTokenException>(message = "Token refresh failed") {
-//            authFilterService.authenticateRequest(req).getOrThrow()
-//        }
-        TODO("Finish this")
+        val jwt = JwtUtils.createJwt(-20)
+        val token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)
+        var claims: JWTClaimsSet? = null
+        var cookie: String? = null
+        val req = RequestWrapper(
+                requestUri = "/something",
+                getCookieValue = {null},
+                getHeaderValue = { name -> getTokenHeader(name, token) },
+                setAuthentication = { claims = it },
+                setNewTokenCookie = { cookie = it }
+        )
+
+        assertFailsWith<InvalidTokenException>(message = "Token refresh failed") {
+            authFilterService.authenticateRequest(req).getOrThrow()
+        }
+        assertNull(claims)
+        assertNull(cookie)
     }
 
     @Test
