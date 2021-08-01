@@ -4,6 +4,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nimbusds.jose.jwk.JWKSet
 import com.nimbusds.jwt.JWTClaimsSet
 import io.craigmiller160.oauth2.config.OAuth2Config
+import io.craigmiller160.oauth2.dto.TokenResponseDto
 import io.craigmiller160.oauth2.exception.InvalidTokenException
 import io.craigmiller160.oauth2.security.CookieCreator
 import io.craigmiller160.oauth2.security.RequestWrapper
@@ -249,48 +250,62 @@ class AuthenticationFilterServiceImplTest {
 
     @Test
     fun `authenticate with token without bearer prefix`() {
-//        `when`(req.requestUri)
-//                .thenReturn("/something")
-//        `when`(req.getHeaderValue("Authorization"))
-//                .thenReturn(token)
-//        val ex = assertFailsWith<InvalidTokenException> {
-//            authFilterService.authenticateRequest(req).getOrThrow()
-//        }
-//        assertEquals("Not bearer token", ex.message)
-        TODO("Finish this")
+        var claims: JWTClaimsSet? = null
+        var cookie: String? = null
+        val req = RequestWrapper(
+                requestUri = "/something",
+                getCookieValue = {null},
+                getHeaderValue = { name -> when(name) {
+                    "Authorization" -> token
+                    else -> null
+                } },
+                setAuthentication = { claims = it },
+                setNewTokenCookie = { cookie = it }
+        )
+
+        val ex = assertFailsWith<InvalidTokenException> {
+            authFilterService.authenticateRequest(req).getOrThrow()
+        }
+        assertEquals("Not bearer token", ex.message)
     }
 
     @Test
     fun `authenticate with successful refresh`() {
-//        `when`(req.requestUri)
-//                .thenReturn("/something")
-//        val jwt = JwtUtils.createJwt(-20)
-//        val token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)
-//        `when`(req.getHeaderValue("Authorization"))
-//                .thenReturn("Bearer $token")
-//        val refreshToken = "ABCDEFG"
-//        val newRefreshToken = "HIJKLMNO"
-//        val newTokenId = "id2"
-//
-//        `when`(refreshTokenService.refreshToken(token))
-//                .thenReturn(TokenResponseDto(this.token, newRefreshToken, newTokenId))
-//
-//        `when`(cookieCreator.createTokenCookie(cookieName, oAuthConfig.getOrDefaultCookiePath(), this.token, oAuthConfig.cookieMaxAgeSecs))
-//                .thenReturn("Cookie")
-//
-//        authFilterService.authenticateRequest(req)
-//
-//        val captor = argumentCaptor<JWTClaimsSet>()
-//        verify(req, times(1))
-//                .setAuthentication(captor.capture())
-//        assertEquals(JwtUtils.USERNAME, captor.firstValue.subject)
-//        assertEquals(listOf(JwtUtils.ROLE_1, JwtUtils.ROLE_2), captor.firstValue.getStringListClaim("roles"))
-//
-//        verify(refreshTokenService, times(1))
-//                .refreshToken(token)
-//        verify(req, times(1))
-//                .setNewTokenCookie("Cookie")
-        TODO("Finish this")
+        val jwt = JwtUtils.createJwt(-20)
+        val token = JwtUtils.signAndSerializeJwt(jwt, keyPair.private)
+
+        var claims: JWTClaimsSet? = null
+        var cookie: String? = null
+        val req = RequestWrapper(
+                requestUri = "/something",
+                getCookieValue = {null},
+                getHeaderValue = { name -> getTokenHeader(name, token) },
+                setAuthentication = { claims = it },
+                setNewTokenCookie = { cookie = it }
+        )
+
+        val refreshToken = "ABCDEFG"
+        val newRefreshToken = "HIJKLMNO"
+        val newTokenId = "id2"
+
+        `when`(refreshTokenService.refreshToken(token))
+                .thenReturn(TokenResponseDto(this.token, newRefreshToken, newTokenId))
+
+        `when`(cookieCreator.createTokenCookie(cookieName, oAuthConfig.getOrDefaultCookiePath(), this.token, oAuthConfig.cookieMaxAgeSecs))
+                .thenReturn("Cookie")
+
+        authFilterService.authenticateRequest(req).getOrThrow()
+
+        assertNotNull(claims)
+        assertNotNull(cookie)
+
+        assertEquals("Cookie", cookie)
+
+        assertEquals(JwtUtils.USERNAME, claims?.subject)
+        assertEquals(listOf(JwtUtils.ROLE_1, JwtUtils.ROLE_2), claims?.getStringListClaim("roles"))
+
+        verify(refreshTokenService, times(1))
+                .refreshToken(token)
     }
 
 }
