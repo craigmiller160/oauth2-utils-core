@@ -222,7 +222,7 @@ class AuthenticationFilterServiceImplTest {
         val ex = assertFailsWith<InvalidTokenException> {
             authFilterService.authenticateRequest(req).getOrThrow()
         }
-        assertTrue { ex.message?.contains("""JWT "clientKey" claim has value clientKey, must be ABCDEFG""") ?: false }
+        assertTrue { ex.message?.contains("""JWT clientKey claim has value clientKey, must be ABCDEFG""") ?: false }
         assertNull(claims)
         assertNull(cookie)
     }
