@@ -6,7 +6,7 @@
 
     <groupId>io.craigmiller160</groupId>
     <artifactId>oauth2-utils-core</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0.Jakarta</version>
 
     <dependencyManagement>
         <dependencies>
@@ -42,13 +42,19 @@
         <mockito.version>3.11.2</mockito.version>
         <jackson.version>2.13.0</jackson.version>
         <h2.version>1.4.200</h2.version>
-        <javax.servlet.version>4.0.1</javax.servlet.version>
         <shiro.version>1.8.0</shiro.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
         <kotlin.result.extension>1.0.0</kotlin.result.extension>
+        <jakarta.servlet.version>5.0.0</jakarta.servlet.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${jakarta.servlet.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>io.craigmiller160</groupId>
             <artifactId>kotlin-result-extension</artifactId>
@@ -64,12 +70,6 @@
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
             <version>${shiro.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
