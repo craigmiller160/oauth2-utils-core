@@ -1,7 +1,7 @@
 package io.craigmiller160.oauth2.service
 
 import io.craigmiller160.oauth2.dto.AuthCodeSuccessDto
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 interface AuthCodeService {
 

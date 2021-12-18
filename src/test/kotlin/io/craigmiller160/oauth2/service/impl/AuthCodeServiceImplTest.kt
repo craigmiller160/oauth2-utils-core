@@ -22,8 +22,8 @@ import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpSession
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpSession
 
 @ExtendWith(MockitoExtension::class)
 class AuthCodeServiceImplTest {

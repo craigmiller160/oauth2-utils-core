@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 class AuthCodeServiceImpl(
         private val oAuth2Config: OAuth2Config,
