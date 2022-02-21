@@ -2,10 +2,6 @@
 
 Once fully integrated and configured, the consuming application will expose several important APIs to allow the authentication to take place. This will detail how they work.
 
-## Add CSRF Protection
-
-It is strongly recommended to add CSRF protection to the application for security purposes. While all cookies are `same-site=strict`, CSRF provides an extra layer of protection on top of this.
-
 ## Auth Code APIs
 
 The auth code flow requires two separate API endpoints to support the operation.
