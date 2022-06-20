@@ -71,6 +71,7 @@ class OAuth2ServiceImplTest {
         assertEquals(authUser.roles, result.roles)
         assertEquals(authUser.firstName, result.firstName)
         assertEquals(authUser.lastName, result.lastName)
+        assertEquals(authUser.userId, result.userId)
     }
 
     data class AuthUserImpl(
