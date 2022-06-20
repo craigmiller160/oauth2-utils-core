@@ -16,6 +16,7 @@ import kotlin.test.assertEquals
 class OAuth2ServiceImplTest {
 
     companion object {
+        const val USER_ID = 1L
         const val USER_NAME = "UserName"
         val ROLES = listOf("Role")
         const val FIRST_NAME = "firstName"
@@ -24,6 +25,7 @@ class OAuth2ServiceImplTest {
         const val COOKIE_NAME = "cookieName"
         const val COOKIE_PATH = "cookiePath"
         private val authUser = AuthUserImpl(
+                USER_ID,
                 USER_NAME,
                 ROLES,
                 FIRST_NAME,
@@ -72,6 +74,7 @@ class OAuth2ServiceImplTest {
     }
 
     data class AuthUserImpl(
+            override val userId: Long,
             override val userName: String,
             override val roles: List<String>,
             override val firstName: String,
