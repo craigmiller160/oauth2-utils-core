@@ -24,12 +24,12 @@
         <repository>
             <id>nexus</id>
             <name>Releases</name>
-            <url>https://craigmiller160.ddns.net:30003/repository/maven-releases</url>
+            <url>https://nexus-craigmiller160.ddns.net/repository/maven-releases</url>
         </repository>
         <snapshotRepository>
             <id>nexus</id>
             <name>Snapshot</name>
-            <url>https://craigmiller160.ddns.net:30003/repository/maven-snapshots</url>
+            <url>https://nexus-craigmiller160.ddns.net/repository/maven-snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -39,13 +39,17 @@
         <nimbus.jose.version>9.15.2</nimbus.jose.version>
         <jakarta.annotation.version>2.0.0</jakarta.annotation.version>
         <junit.version>5.7.2</junit.version>
-        <mockito.version>3.11.2</mockito.version>
+        <mockito.version>4.8.1</mockito.version>
         <jackson.version>2.13.0</jackson.version>
         <h2.version>1.4.200</h2.version>
         <shiro.version>1.8.0</shiro.version>
         <mockito.kotlin.version>2.2.0</mockito.kotlin.version>
+<<<<<<< HEAD
         <kotlin.result.extension>1.0.0</kotlin.result.extension>
         <jakarta.servlet.version>5.0.0</jakarta.servlet.version>
+=======
+        <kotlin.result.extension>1.0.1</kotlin.result.extension>
+>>>>>>> master
     </properties>
 
     <dependencies>
